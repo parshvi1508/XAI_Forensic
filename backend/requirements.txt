@@ -1,0 +1,8 @@
+fastapi==0.136.1
+uvicorn==0.46.0
+transformers==5.8.0
+torch==2.11.0
+lime==0.2.0.1
+numpy==2.4.4
+scikit-learn==1.8.0
+scipy==1.17.1
