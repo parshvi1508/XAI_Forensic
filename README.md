@@ -153,6 +153,22 @@ Input is limited to 1000 characters. Requests with longer text return HTTP 400.
 LIME is the main latency source. CPU inference is used because deployment is on the Hugging Face free tier, which does not guarantee GPU availability. This is acceptable for a demo tool with short text inputs.
 
 
+## Latency Benchmark
+
+The backend runs on Hugging Face Spaces free-tier CPU. The table below reports median endpoint runtime across 3 runs after one warmup request. Timings are approximate because free-tier CPU performance varies.
+
+| Words | WHY median | FLIP median | DISAGREE median |
+|---:|---:|---:|---:|
+| 5 | 4.5s | 414ms | 98ms |
+| 10 | 5.8s | 270ms | 75ms |
+| 20 | 6.1s | 475ms | 72ms |
+| 50 | 8.3s | 4.2s | 104ms |
+
+WHY is slowest because LIME generates perturbed versions of the input and reruns model inference many times. FLIP scales with word count because it removes candidate words one at a time and reruns inference. DISAGREE is fastest because it only runs two model forward passes.
+
+The benchmark can be reproduced with `scripts/benchmark_latency.py`.
+
+
 ## Security and Cost
 
 - No paid APIs. Both models are public Hugging Face models.
@@ -163,13 +179,19 @@ LIME is the main latency source. CPU inference is used because deployment is on 
 - Input capped at 1000 characters to prevent LIME timeouts on free-tier CPU.
 
 
-## Known Limitations
+## Known Behavior and Limitations
+
+Single-word inputs are not ideal for this tool. LIME works by perturbing parts of the input and observing prediction changes. With only one word, there is very little structure to perturb, so the explanation can be unstable or uninformative. In testing, short inputs such as "Fine." can produce domain-sensitive behavior because different models interpret minimal context differently.
+
+Highly confident predictions may not flip after one-word removal. For example, strongly positive sentences such as "I absolutely love this, it is the best thing ever." often remain positive after removing one word. This does not mean every word is irrelevant. It means the model found enough evidence across the sentence that removing one token did not change the final verdict.
+
+Counterfactual removal can create ungrammatical text because the method deletes a word rather than rewriting the sentence. This is a deliberate MVP tradeoff. The FLIP panel is a fragility test, not a full natural-language counterfactual generator. For example, removing a key word from "I am not entirely unhappy with this result." can flip the verdict, but the modified sentence may not always be natural English.
+
+Additional limitations:
 
 - LIME explanation takes 15-45 seconds on CPU for short text
-- Greedy word removal can produce ungrammatical text after deletion
-- Counterfactual removal does not always flip the label on highly confident predictions
 - Input limited to 1000 characters
-- Hugging Face free tier sleeps after ~15 minutes of inactivity; first request after sleep has a 30-60 second cold start
+- Hugging Face free tier sleeps after inactivity; first request after sleep has a 30-60 second cold start
 - Only tested on English text
 - Sentiment-specific; adapting to other tasks would require different models and possibly different XAI methods
 
