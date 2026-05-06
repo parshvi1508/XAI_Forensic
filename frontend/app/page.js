@@ -85,7 +85,7 @@ export default function Home() {
     <div className="min-h-screen bg-[#080a0c] text-[#dce3ec]">
 
       {/* Header */}
-      <header className="border-b border-[#252d38] px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
+      <header className="border-b border-[#252d38] px-4 sm:px-6 lg:px-8 py-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-mono text-sm font-bold tracking-[0.2em] uppercase text-[#58a6ff]">
             XAI Forensics
@@ -94,11 +94,29 @@ export default function Home() {
             Model decision inspection with attribution, counterfactuals, and disagreement
           </p>
         </div>
-        {hasAnyResult && !loading && (
-          <span className="font-mono text-[10px] tracking-widest uppercase text-[#3ecf6f] border border-[#1e4030] bg-[#0d1f17] rounded px-2 py-1 hidden sm:inline">
-            Analysis complete
-          </span>
-        )}
+        <div className="flex items-center gap-4">
+          <a
+            href="https://github.com/parshvi1508/XAI_Forensic"
+            target="_blank"
+            rel="noreferrer"
+            className="font-mono text-[11px] text-[#96a8be] hover:text-[#58a6ff] transition-colors tracking-wide"
+          >
+            Source
+          </a>
+          <a
+            href="https://jainparshvi-xai-forensics-backend.hf.space/docs"
+            target="_blank"
+            rel="noreferrer"
+            className="font-mono text-[11px] text-[#96a8be] hover:text-[#58a6ff] transition-colors tracking-wide"
+          >
+            API Docs
+          </a>
+          {hasAnyResult && !loading && (
+            <span className="font-mono text-[10px] tracking-widest uppercase text-[#3ecf6f] border border-[#1e4030] bg-[#0d1f17] rounded px-2 py-1 hidden sm:inline">
+              Analysis complete
+            </span>
+          )}
+        </div>
       </header>
 
       <main className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-7xl mx-auto space-y-8 sm:space-y-10">
