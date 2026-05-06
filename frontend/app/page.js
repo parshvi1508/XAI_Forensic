@@ -199,7 +199,13 @@ export default function Home() {
 
 /* ---- shared primitives ---- */
 
-function PanelShell({ id, title, tag, description, children }) {
+function formatDuration(ms) {
+  if (ms == null) return null;
+  if (ms < 1000) return `${ms} ms`;
+  return `${(ms / 1000).toFixed(1)}s`;
+}
+
+function PanelShell({ id, title, tag, description, durationMs, children }) {
   return (
     <div
       id={id}
@@ -215,6 +221,11 @@ function PanelShell({ id, title, tag, description, children }) {
             {title}
           </span>
         </div>
+        {formatDuration(durationMs) && (
+          <span className="font-mono text-[10px] text-[#5a6a7e] tracking-wide">
+            Runtime: {formatDuration(durationMs)}
+          </span>
+        )}
         {description && (
           <p className="font-sans text-[15px] text-[#96a8be] leading-loose">{description}</p>
         )}
@@ -309,6 +320,7 @@ function WhyPanel({ data, error, loading }) {
       title="WHY"
       tag="01 - Attribution"
       description="Which tokens pushed the model toward its prediction, and by how much."
+      durationMs={data?.duration_ms}
     >
       {loading ? (
         <LoadingSkeleton />
@@ -424,6 +436,7 @@ function FlipPanel({ data, error, loading }) {
       title="FLIP"
       tag="02 - Counterfactual"
       description="Remove the highest-impact token and measure whether the prediction label changes."
+      durationMs={data?.duration_ms}
     >
       {loading ? (
         <LoadingSkeleton />
@@ -583,6 +596,7 @@ function DisagreePanel({ data, error, loading }) {
       title="DISAGREE"
       tag="03 - Dual-model"
       description="DistilBERT (formal) vs RoBERTa-Twitter (informal). Divergence reveals linguistic ambiguity."
+      durationMs={data?.duration_ms}
     >
       {loading ? (
         <LoadingSkeleton />
@@ -841,6 +855,11 @@ function ForensicSummary({ results }) {
           {line}
         </p>
       ))}
+      {why.duration_ms != null && flip.duration_ms != null && disagree.duration_ms != null && (
+        <p className="font-mono text-[11px] text-[#5a6a7e] leading-relaxed pt-1">
+          Runtime: WHY {formatDuration(why.duration_ms)}, FLIP {formatDuration(flip.duration_ms)}, DISAGREE {formatDuration(disagree.duration_ms)}. WHY is usually slowest because LIME runs many perturbed model calls.
+        </p>
+      )}
     </section>
   );
 }
