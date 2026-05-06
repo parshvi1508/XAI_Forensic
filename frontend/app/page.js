@@ -85,23 +85,27 @@ export default function Home() {
     <div className="min-h-screen bg-[#080a0c] text-[#dce3ec]">
 
       {/* Header */}
-      <header className="border-b border-[#252d38] px-8 py-5 flex items-center justify-between">
+      <header className="border-b border-[#252d38] px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
         <div>
           <h1 className="font-mono text-sm font-bold tracking-[0.2em] uppercase text-[#58a6ff]">
             XAI Forensics
           </h1>
           <p className="font-sans text-sm text-[#96a8be] mt-1 leading-snug">
-            Token attribution - counterfactual flip - dual-model disagreement
+            Model decision inspection with attribution, counterfactuals, and disagreement
           </p>
         </div>
         {hasAnyResult && !loading && (
-          <span className="font-mono text-[10px] tracking-widest uppercase text-[#3ecf6f] border border-[#1e4030] bg-[#0d1f17] rounded px-2 py-1">
+          <span className="font-mono text-[10px] tracking-widest uppercase text-[#3ecf6f] border border-[#1e4030] bg-[#0d1f17] rounded px-2 py-1 hidden sm:inline">
             Analysis complete
           </span>
         )}
       </header>
 
-      <main className="px-8 py-10 max-w-7xl mx-auto space-y-10">
+      <main className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 max-w-7xl mx-auto space-y-8 sm:space-y-10">
+
+        <HeroSection />
+
+        <HowToRead />
 
         {/* Fatal / backend-down error */}
         {fatalError && (
@@ -116,6 +120,7 @@ export default function Home() {
 
         {/* Input area */}
         <section className="space-y-4">
+          <ExampleCards onSelect={(s) => setText(s)} />
           <div className="flex items-center justify-between">
             <label
               htmlFor="input-text"
@@ -169,12 +174,24 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Forensic summary */}
+        <ForensicSummary results={results} />
+
+        {/* Confidence note */}
+        {hasAnyResult && !loading && (
+          <p className="font-sans text-[12px] text-[#5a6a7e] leading-relaxed">
+            Confidence is the model's own score for its current verdict. High confidence does not guarantee correctness.
+          </p>
+        )}
+
         {/* Panels */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           <WhyPanel     data={results.why}     error={errors.why}     loading={loading} />
           <FlipPanel    data={results.flip}    error={errors.flip}    loading={loading} />
           <DisagreePanel data={results.disagree} error={errors.disagree} loading={loading} />
         </section>
+
+        <MethodologySection />
       </main>
     </div>
   );
@@ -186,7 +203,7 @@ function PanelShell({ id, title, tag, description, children }) {
   return (
     <div
       id={id}
-      className="bg-[#0d1117] border border-[#252d38] rounded-lg p-6 space-y-5 min-h-[280px] flex flex-col"
+      className="bg-[#0d1117] border border-[#252d38] rounded-lg p-4 sm:p-6 space-y-5 min-h-[280px] flex flex-col min-w-0"
     >
       {/* Panel header */}
       <div className="space-y-2 pb-4 border-b border-[#252d38]">
@@ -199,7 +216,7 @@ function PanelShell({ id, title, tag, description, children }) {
           </span>
         </div>
         {description && (
-          <p className="font-sans text-sm text-[#96a8be] leading-relaxed">{description}</p>
+          <p className="font-sans text-[15px] text-[#96a8be] leading-loose">{description}</p>
         )}
       </div>
       <div className="flex-1">{children}</div>
@@ -217,10 +234,10 @@ function Field({ label, value, highlight }) {
   const valueColor = highlight ? colorMap[highlight] : "text-[#dce3ec]";
   return (
     <div className="space-y-1.5">
-      <span className="font-mono block text-[10px] tracking-[0.18em] uppercase text-[#5a6a7e] font-semibold">
+      <span className="font-mono block text-[12px] tracking-[0.18em] uppercase text-[#5a6a7e] font-semibold">
         {label}
       </span>
-      <span className={`font-mono block text-base font-semibold break-words ${valueColor}`}>{value}</span>
+      <span className={`font-mono block text-lg font-semibold break-words ${valueColor}`}>{value}</span>
     </div>
   );
 }
@@ -303,7 +320,7 @@ function WhyPanel({ data, error, loading }) {
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <Field
-              label="Predicted label"
+              label="Model verdict"
               value={data.label ?? "-"}
               highlight={
                 typeof data.label === "string"
@@ -325,10 +342,22 @@ function WhyPanel({ data, error, loading }) {
 
           {Array.isArray(data.tokens) && data.tokens.length > 0 ? (
             <div className="space-y-2">
+              {(() => {
+                const st = data.tokens.reduce((a, b) => Math.abs(a.weight) >= Math.abs(b.weight) ? a : b);
+                const dir = st.weight >= 0 ? "positive" : "negative";
+                return (
+                  <p className="font-sans text-[14px] text-[#b0c0d4] leading-loose mb-3">
+                    The word <span className="font-mono font-semibold text-[#e0a052]">{st.token}</span> had the strongest pull toward the {dir} verdict. Green bars pushed the model toward positive. Red bars pushed toward negative.
+                  </p>
+                );
+              })()}
               <span className="font-mono block text-[10px] tracking-[0.18em] uppercase text-[#5a6a7e] font-semibold">
-                Token weights
+                Word influence
               </span>
               <TokenBars tokens={data.tokens} />
+              <p className="font-sans text-[12px] text-[#5a6a7e] leading-relaxed mt-2">
+                These are LIME estimates. They show local influence on this prediction, not global model behavior.
+              </p>
             </div>
           ) : (
             <div className="space-y-1">
@@ -364,7 +393,7 @@ function TokenBars({ tokens }) {
         return (
           <div key={i} className="flex items-center gap-2">
             <span
-              className="font-mono w-[6.5rem] shrink-0 truncate text-sm text-[#b0c0d4] font-medium"
+              className="font-mono w-16 sm:w-[6.5rem] shrink-0 truncate text-[13px] text-[#b0c0d4] font-medium"
               title={t.token}
             >
               {t.token}
@@ -375,7 +404,7 @@ function TokenBars({ tokens }) {
                 style={{ width: `${pct}%` }}
               />
             </div>
-            <span className={`font-mono w-14 text-right font-semibold tabular-nums text-sm ${numColor}`}>
+            <span className={`font-mono w-14 text-right font-semibold tabular-nums text-[13px] ${numColor}`}>
               {t.weight >= 0 ? "+" : ""}
               {typeof t.weight === "number" ? t.weight.toFixed(3) : t.weight}
             </span>
@@ -404,13 +433,50 @@ function FlipPanel({ data, error, loading }) {
         <EmptyState />
       ) : (
         <div className="space-y-4">
+          {(() => {
+            const word = data.key_word;
+            const flipped = data.flipped;
+            const shift = Math.round(Math.abs(data.delta) * 100);
+            const origConf = Math.round(data.original_confidence * 100);
+            const modConf = Math.round(data.modified_confidence * 100);
+            let msg;
+            if (flipped === true) {
+              msg = `We removed the word "${word}" and ran the model again. The verdict flipped from ${data.original_label} to ${data.modified_label}. Model confidence went from ${origConf}% to ${modConf}%. One word controlled this verdict.`;
+            } else if (shift >= 20) {
+              msg = `We removed the word "${word}" and ran the model again. The verdict held, but model confidence shifted by ${shift} points. The prediction is sensitive to this word even though it did not flip.`;
+            } else {
+              msg = `We removed the word "${word}" and ran the model again. The verdict held and confidence barely changed. This prediction does not depend heavily on one word.`;
+            }
+            return (
+              <p className="font-sans text-[14px] text-[#b0c0d4] leading-loose mb-3">{msg}</p>
+            );
+          })()}
+          {/* Fragility badge */}
+          {(() => {
+            let fragLabel, fragCls;
+            if (data.flipped === true) {
+              fragLabel = "FRAGILITY: HIGH";
+              fragCls = "text-[#e05252] bg-[#1a0d0d] border-[#3a1515]";
+            } else if (typeof data.delta === "number" && Math.abs(data.delta) >= 0.2) {
+              fragLabel = "FRAGILITY: MEDIUM";
+              fragCls = "text-[#e0a052] bg-[#1a1400] border-[#3a2e00]";
+            } else {
+              fragLabel = "FRAGILITY: LOW";
+              fragCls = "text-[#3ecf6f] bg-[#0d1f17] border-[#1e4030]";
+            }
+            return (
+              <span className={`font-mono text-[11px] uppercase font-bold px-3 py-1 rounded border inline-block mb-2 ${fragCls}`}>
+                {fragLabel}
+              </span>
+            );
+          })()}
           {/* Before removal */}
           <div className="space-y-1">
             <span className="font-mono block text-[10px] tracking-[0.18em] uppercase text-[#5a6a7e] font-semibold">
               Before removal
             </span>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Label" value={data.original_label ?? "-"} />
+              <Field label="Verdict" value={data.original_label ?? "-"} />
               <Field
                 label="Confidence"
                 value={
@@ -446,7 +512,7 @@ function FlipPanel({ data, error, loading }) {
             </span>
             <div className="grid grid-cols-2 gap-3">
               <Field
-                label="Label"
+                label="Verdict"
                 value={data.modified_label ?? "-"}
                 highlight={
                   data.flipped === true ? "red" : null
@@ -465,7 +531,7 @@ function FlipPanel({ data, error, loading }) {
 
           {/* Delta */}
           <Field
-            label="Confidence delta"
+            label="Positive-score shift"
             value={
               typeof data.delta === "number"
                 ? Math.abs(data.delta) < 0.001
@@ -479,6 +545,9 @@ function FlipPanel({ data, error, loading }) {
                 : null
             }
           />
+          <p className="font-sans text-[12px] text-[#5a6a7e] leading-relaxed">
+            This is the change in the model's positive-class score after removing the key word. A negative shift means the text became less positive to the model.
+          </p>
 
           {/* Verdict flipped status */}
           <StatusRow
@@ -523,6 +592,25 @@ function DisagreePanel({ data, error, loading }) {
         <EmptyState />
       ) : (
         <div className="space-y-4">
+          {(() => {
+            const posA = Math.round(data.model_a.positive_score * 100);
+            const posB = Math.round(data.model_b.positive_score * 100);
+            const gap = Math.round(data.divergence * 100);
+            let msg;
+            if (data.models_agree === false) {
+              msg = `Model A gave this sentence a ${posA}% positive score. Model B gave it ${posB}%. They reached opposite verdicts. A gap this large means the sentence is genuinely ambiguous across training domains.`;
+            } else if (gap >= 20) {
+              msg = `Model A gave this sentence a ${posA}% positive score. Model B gave it ${posB}%. Both called it the same verdict but with a ${gap}-point confidence gap. The wording is clear enough to classify, but reads differently across formal and informal training data.`;
+            } else if (gap >= 5) {
+              msg = `Model A gave this sentence a ${posA}% positive score. Model B gave it ${posB}%. Both models agree with a small ${gap}-point gap. The sentence is reasonably stable across training domains.`;
+            } else {
+              msg = `Model A gave this sentence a ${posA}% positive score. Model B gave it ${posB}%. Both models read this text almost identically. This sentence is stable across training domains.`;
+            }
+            return (
+              <p className="font-sans text-[14px] text-[#b0c0d4] leading-loose">{msg}</p>
+            );
+          })()}
+
           <ModelRow
             label="Model A - DistilBERT"
             result={data.model_a}
@@ -534,24 +622,44 @@ function DisagreePanel({ data, error, loading }) {
             accentColor="text-[#a78bfa]"
           />
 
-          <Field
-            label="Divergence score"
-            value={
-              typeof data.divergence === "number"
-                ? data.divergence.toFixed(4)
-                : data.divergence ?? "-"
-            }
-            highlight={
-              typeof data.divergence === "number"
-                ? data.divergence > 0.3 ? "yellow"
-                : data.divergence > 0.1 ? "blue"
-                : null
-                : null
-            }
-          />
+          {typeof data.divergence === "number" && data.model_a?.positive_score != null && data.model_b?.positive_score != null && (() => {
+            const x = Math.round(data.model_a.positive_score * 100);
+            const y = Math.round(data.model_b.positive_score * 100);
+            const z = Math.round(data.divergence * 100);
+            const interp = data.divergence >= 0.5
+              ? "The models read this text very differently."
+              : data.divergence >= 0.2
+              ? "The models differ meaningfully."
+              : data.divergence >= 0.1
+              ? "Small but visible difference across training domains."
+              : "Both models read this text similarly.";
+            const gapColor = data.divergence > 0.3 ? "text-[#e0a052]" : data.divergence > 0.1 ? "text-[#58a6ff]" : "text-[#6b7a8d]";
+            return (
+              <div className="bg-[#0a0d10] border border-[#2e3d50] rounded-md px-4 py-3 space-y-2">
+                <span className="font-mono block text-[10px] tracking-[0.18em] uppercase text-[#5a6a7e] font-semibold">
+                  Positive-score gap
+                </span>
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div>
+                    <span className="font-mono block text-[10px] text-[#58a6ff] uppercase tracking-wide">Model A</span>
+                    <span className="font-mono block text-lg font-bold text-[#dce3ec]">{x}%</span>
+                  </div>
+                  <div>
+                    <span className="font-mono block text-[10px] text-[#a78bfa] uppercase tracking-wide">Model B</span>
+                    <span className="font-mono block text-lg font-bold text-[#dce3ec]">{y}%</span>
+                  </div>
+                  <div>
+                    <span className="font-mono block text-[10px] text-[#5a6a7e] uppercase tracking-wide">Gap</span>
+                    <span className={`font-mono block text-lg font-bold ${gapColor}`}>{z}pt</span>
+                  </div>
+                </div>
+                <p className="font-sans text-[12px] text-[#6b7a8d] leading-relaxed">{interp}</p>
+              </div>
+            );
+          })()}
 
           <StatusRow
-            label="Models agree"
+            label="Second model agrees"
             value={data.models_agree !== undefined ? (agreed ? "YES" : "NO") : "-"}
             highlight={agreed ? "green" : "yellow"}
           />
@@ -560,10 +668,10 @@ function DisagreePanel({ data, error, loading }) {
           {data.models_agree !== undefined && (
             <p className="font-sans text-sm text-[#96a8be] leading-relaxed pt-1">
               {data.models_agree === false
-                ? "The models disagree. This sentence is ambiguous across training domains."
+                ? "The models reached different verdicts. This sentence is ambiguous across training domains."
                 : typeof data.divergence === "number" && data.divergence >= 0.1
-                ? "The models agree on the verdict, but confidence differs across training domains."
-                : "Both models reached a similar conclusion. The verdict is relatively stable."}
+                ? "Both models agree on the verdict, but their confidence differs. The same sentence is read differently depending on training data."
+                : "Both models agree strongly. This sentence is stable across training domains."}
             </p>
           )}
         </div>
@@ -603,6 +711,247 @@ function ModelRow({ label, result, accentColor }) {
           </span>
         )}
       </div>
+    </div>
+  );
+}
+
+/* ---- Hero section ---- */
+
+function HeroSection() {
+  return (
+    <section className="space-y-3 pb-2">
+      <p className="font-sans text-xl sm:text-2xl font-semibold text-[#dce3ec] leading-snug">
+        Stress-test a model decision before trusting it.
+      </p>
+      <p className="font-sans text-[15px] sm:text-[17px] text-[#96a8be] leading-relaxed">
+        Inspect how a transformer sentiment classifier makes decisions using token attribution,
+        counterfactual testing, and dual-model disagreement.
+      </p>
+      <p className="font-sans text-[13px] sm:text-[15px] text-[#6b7a8d] leading-relaxed">
+        Sentiment is the test task. The project is about model behavior.
+      </p>
+    </section>
+  );
+}
+
+function HowToRead() {
+  return (
+    <section className="bg-[#0d1117] border border-[#252d38] rounded-lg px-4 sm:px-5 py-4 space-y-2">
+      <span className="font-mono block text-[10px] tracking-[0.2em] uppercase text-[#5a6a7e] font-semibold">
+        How to read this
+      </span>
+      <ul className="font-sans text-sm text-[#96a8be] leading-relaxed space-y-1 list-none">
+        <li><span className="font-mono text-[#58a6ff] font-bold">WHY</span> shows which words influenced the model verdict.</li>
+        <li><span className="font-mono text-[#58a6ff] font-bold">FLIP</span> checks whether removing one influential word changes the verdict.</li>
+        <li><span className="font-mono text-[#58a6ff] font-bold">DISAGREE</span> checks whether a second model trained on different text reaches the same conclusion.</li>
+      </ul>
+      <p className="font-sans text-[12px] text-[#6b7a8d] leading-relaxed">
+        Explainable AI helps inspect how a model reached a decision, instead of only showing the final output.
+      </p>
+    </section>
+  );
+}
+
+/* ---- Forensic summary ---- */
+
+function ForensicSummary({ results }) {
+  const { why, flip, disagree } = results;
+  if (!why || !flip || !disagree) return null;
+
+  const strongestToken =
+    Array.isArray(why.tokens) && why.tokens.length > 0
+      ? why.tokens.reduce((a, b) =>
+          Math.abs(a.weight) >= Math.abs(b.weight) ? a : b
+        )
+      : null;
+
+  const lines = [];
+
+  // WHY summary
+  if (why.label && typeof why.confidence === "number") {
+    lines.push(
+      `The model classified this text as ${why.label} with ${(why.confidence * 100).toFixed(1)}% confidence.`
+    );
+  }
+  if (strongestToken) {
+    const dir = strongestToken.weight >= 0 ? "positive" : "negative";
+    lines.push(
+      `The model treated "${strongestToken.token}" as the strongest signal, pushing toward the ${dir} class.`
+    );
+  }
+
+  // FLIP summary
+  if (flip.flipped === true) {
+    lines.push(
+      `Removing the word "${flip.key_word}" changed the verdict, suggesting the prediction depends on that single token.`
+    );
+  } else if (typeof flip.delta === "number" && Math.abs(flip.delta) >= 0.001) {
+    lines.push(
+      `Removing "${flip.key_word}" shifted confidence but did not change the verdict, indicating partial sensitivity.`
+    );
+  } else {
+    lines.push(
+      "No single word removal changed the verdict. The prediction appears stable."
+    );
+  }
+
+  // DISAGREE summary
+  if (disagree.models_agree === false) {
+    lines.push(
+      "The two models disagree on this text, suggesting linguistic ambiguity across training domains."
+    );
+  } else if (typeof disagree.divergence === "number" && disagree.divergence >= 0.1) {
+    lines.push(
+      "Both models agree on the label, but their confidence levels differ across training domains."
+    );
+  } else {
+    lines.push(
+      "Both models reached a similar conclusion with comparable confidence."
+    );
+  }
+
+  return (
+    <section className="bg-[#0d1117] border border-[#252d38] rounded-lg px-6 py-5 space-y-2">
+      <span className="font-mono block text-[10px] tracking-[0.2em] uppercase text-[#58a6ff] font-semibold">
+        Forensic summary
+      </span>
+      {(() => {
+        let stabLabel, stabCls;
+        if (flip.flipped === true && disagree.models_agree === false) {
+          stabLabel = "FRAGILE AND DOMAIN-SENSITIVE";
+          stabCls = "text-[#e05252] bg-[#1a0d0d] border-[#3a1515]";
+        } else if (flip.flipped === true) {
+          stabLabel = "FRAGILE";
+          stabCls = "text-[#e05252] bg-[#1a0d0d] border-[#3a1515]";
+        } else if (disagree.models_agree === false) {
+          stabLabel = "DOMAIN-SENSITIVE";
+          stabCls = "text-[#e0a052] bg-[#1a1400] border-[#3a2e00]";
+        } else {
+          stabLabel = "STABLE";
+          stabCls = "text-[#3ecf6f] bg-[#0d1f17] border-[#1e4030]";
+        }
+        return (
+          <span className={`font-mono text-[11px] uppercase font-bold px-3 py-1 rounded border inline-block mb-4 ${stabCls}`}>
+            {stabLabel}
+          </span>
+        );
+      })()}
+      {lines.map((line, i) => (
+        <p key={i} className="font-sans text-sm text-[#b8c8d8] leading-relaxed">
+          {line}
+        </p>
+      ))}
+    </section>
+  );
+}
+
+/* ---- Methodology section ---- */
+
+function MethodCard({ title, children }) {
+  return (
+    <div className="bg-[#0d1117] border border-[#3a4a5e] rounded-lg px-5 py-4 space-y-2">
+      <span className="font-mono block text-xs font-bold tracking-[0.15em] uppercase text-[#58a6ff]">
+        {title}
+      </span>
+      <div className="font-sans text-sm text-[#96a8be] leading-relaxed space-y-1.5">
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function MethodologySection() {
+  return (
+    <section className="space-y-4 pt-4 border-t border-[#252d38]">
+      <span className="font-mono block text-[10px] tracking-[0.2em] uppercase text-[#5a6a7e] font-semibold">
+        Methodology and tradeoffs
+      </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <MethodCard title="Why these models">
+          <p>
+            DistilBERT-SST2 is trained on formal movie-review sentiment text (SST-2 dataset).
+            Twitter-RoBERTa is trained on 124 million tweets and handles informal tone, sarcasm, and slang.
+          </p>
+          <p>
+            These two models were chosen because their different training domains
+            can produce genuine disagreement on ambiguous or informal text.
+          </p>
+        </MethodCard>
+
+        <MethodCard title="Why these methods">
+          <p>
+            LIME is a model-agnostic local explanation method. It perturbs the input and observes
+            how predictions change, estimating token-level influence without accessing model internals.
+          </p>
+          <p>
+            SHAP was considered but rejected for this MVP: it is slower on transformers and expensive
+            on free-tier CPU. Attention weights are not treated as reliable explanations (Jain and Wallace, 2019).
+          </p>
+        </MethodCard>
+
+        <MethodCard title="Why it takes time">
+          <p>
+            LIME runs approximately 300 perturbed model inference calls per explanation (15-45 seconds).
+            FLIP reruns inference once per word in the input (2-10 seconds).
+            DISAGREE runs two forward passes (under 1 second).
+          </p>
+          <p>
+            All inference runs on CPU. The backend is deployed on Hugging Face Spaces free tier,
+            which does not guarantee GPU availability.
+          </p>
+        </MethodCard>
+
+        <MethodCard title="Known limitations">
+          <p>
+            LIME attribution is an approximation, not an exact causal explanation.
+            Greedy word removal can create ungrammatical text after deletion.
+            Counterfactual removal does not always flip the label on highly confident predictions.
+          </p>
+          <p>
+            Input is limited to 1000 characters. The backend can have a 30-60 second cold start
+            after inactivity. This tool is sentiment-specific and has only been tested on English text.
+          </p>
+        </MethodCard>
+      </div>
+    </section>
+  );
+}
+
+/* ---- Example cards ---- */
+
+const EXAMPLES = [
+  {
+    text: "I am not entirely unhappy with this result.",
+    hint: "Double negation. Most models misread the sentiment direction.",
+  },
+  {
+    text: "Great, another meeting that could have been an email.",
+    hint: "Surface sarcasm. Positive tone, negative meaning.",
+  },
+  {
+    text: "You are surprisingly competent for once.",
+    hint: "Backhanded compliment. Mixed signals across training domains.",
+  },
+];
+
+function ExampleCards({ onSelect }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+      {EXAMPLES.map((ex, i) => (
+        <button
+          key={i}
+          type="button"
+          onClick={() => onSelect(ex.text)}
+          className="bg-[#0d1117] border border-[#2e3d50] rounded-md px-4 py-3 text-left cursor-pointer hover:border-[#58a6ff] transition-colors"
+        >
+          <span className="font-mono block text-[13px] text-[#b0c0d4]">
+            {ex.text}
+          </span>
+          <span className="font-sans block text-[12px] text-[#5a6a7e] mt-1">
+            {ex.hint}
+          </span>
+        </button>
+      ))}
     </div>
   );
 }
