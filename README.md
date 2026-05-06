@@ -1,6 +1,6 @@
 # XAI Forensics
 
-A transformer decision inspection tool. Three forensic XAI methods reveal how and why sentiment classifiers make their predictions.
+A transformer decision inspection tool. Three forensic XAI methods inspect how and why sentiment classifiers make their predictions.
 
 This is an MVP demo tool. Sentiment analysis is the controlled test task, not the goal. The project is about inspecting model behavior.
 
