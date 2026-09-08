@@ -1,8 +1,10 @@
 # XAI Forensics
 
-A transformer decision inspection tool. Three forensic XAI methods inspect how and why sentiment classifiers make their predictions.
+A diagnostic tool for evaluating when LIME token attributions are trustworthy on transformer sentiment classifiers. Runs three independent forensic checks (attribution stability, counterfactual faithfulness, cross-model agreement) and validates results against a 30-input pre-registered audit.
 
-This is an MVP demo tool. Sentiment analysis is the controlled test task, not the goal. The project is about inspecting model behavior.
+**Key finding:** high-confidence predictions (>95%) produce the least stable attributions (mean Jaccard 0.46 on strong baselines), while lexical-shortcut inputs are perfectly faithful (Jaccard 1.0, 100% flip rate). This tool shows you when LIME is signal vs. noise.
+
+Sentiment classification is the controlled test task. The project evaluates the explanation method, not the classifier output.
 
 
 
@@ -31,24 +33,23 @@ This sentence contains a double negation that causes the two models to genuinely
 
 ## What This Does
 
-XAI Forensics runs three independent analyses on any short English text:
+XAI Forensics runs three independent diagnostic checks on any short English text:
 
-1. **WHY** - Which tokens pushed the model toward its prediction, and by how much?
-2. **FLIP** - If we remove the most influential word, does the prediction change?
-3. **DISAGREE** - Do two models trained on different data agree on this text?
+1. **WHY (Attribution Stability)** - Tests whether LIME can produce a stable, reproducible token ranking for a given prediction. Seeds the random state for deterministic output.
+2. **FLIP (Counterfactual Faithfulness)** - Tests whether the tokens LIME identifies as important are actually causally influential. Removes the top-attributed word and measures the real confidence shift.
+3. **DISAGREE (Cross-Model Consistency)** - Tests whether the prediction itself is domain-stable enough to warrant attribution analysis. Compares DistilBERT-SST2 against Twitter-RoBERTa.
 
-Each analysis targets a different dimension of model behavior: local feature importance, counterfactual sensitivity, and cross-domain stability.
+Each check targets a different failure mode of LIME: instability under re-sampling, unfaithfulness to the model's actual reasoning, and domain sensitivity of the underlying prediction.
 
+### Audit Results
 
+A pre-registered 30-input audit (5 seeds each, 150 total LIME runs) found:
+- Overall mean Jaccard stability: **0.81** (passes 0.6 threshold)
+- Deletion faithfulness direction correct: **89.3%** (passes 70% threshold)
+- Strong baselines category (high confidence): **Jaccard 0.67** (lowest category, driven by redundant evidence)
+- Lexical shortcuts category: **100% label flip rate** (highest faithfulness)
 
-### This Is Not Just Sentiment Analysis
-
-Sentiment classification is the test task. The project inspects the decision process, not the decision itself.
-- WHY uses LIME to estimate token-level influence on the prediction, not to classify text.
-- FLIP tests whether the prediction is brittle by removing one word, not to improve accuracy.
-- DISAGREE compares two models with different training data to find where their world models diverge.
-
-A recruiter or professor reading this should evaluate the XAI methodology, not the sentiment labels.
+Full interactive results available at [/audit](https://xai-forensic.vercel.app/audit).
 
 ## How It Works
 

@@ -1,24 +1,38 @@
+import functools
+import json
+import logging
+
 from transformers import pipeline
 from lime.lime_text import LimeTextExplainer
 import numpy as np
 
+logger = logging.getLogger("xai_forensics")
+
 MODEL_A_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
+MODEL_A_REVISION = "714eb0fa89d2f80546fda750413ed43d93601a13"
 MODEL_B_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
+MODEL_B_REVISION = "3216a57f2a0d9c45a2e6c20157c20c49fb4bf9c7"
 
 # top_k=None needed for LIME's predict_proba interface
-model_a = pipeline("text-classification", model=MODEL_A_NAME, top_k=None)
-model_b = pipeline("text-classification", model=MODEL_B_NAME, top_k=None)
+model_a = pipeline("text-classification", model=MODEL_A_NAME, revision=MODEL_A_REVISION, top_k=None)
+model_b = pipeline("text-classification", model=MODEL_B_NAME, revision=MODEL_B_REVISION, top_k=None)
 
-print(f"loaded model A: {MODEL_A_NAME}")
-print(f"loaded model B: {MODEL_B_NAME}")
+logger.info("loaded model A: %s", MODEL_A_NAME)
+logger.info("loaded model B: %s", MODEL_B_NAME)
+
+
+_POSITIVE_LABELS = {"POSITIVE", "positive"}
 
 
 def _get_positive_score(pipeline_output: list) -> float:
-    # label names differ between models; match any containing "pos"
     for item in pipeline_output[0]:
-        if "pos" in item["label"].lower():
+        if item["label"] in _POSITIVE_LABELS:
             return item["score"]
-    return 1.0 - max(item["score"] for item in pipeline_output[0])
+    known = [item["label"] for item in pipeline_output[0]]
+    raise ValueError(
+        f"No positive label found in {known}. "
+        f"Expected one of: {_POSITIVE_LABELS}"
+    )
 
 
 def _model_a_proba(texts: list[str]) -> np.ndarray:
@@ -30,8 +44,13 @@ def _model_a_proba(texts: list[str]) -> np.ndarray:
     return np.array(results)
 
 
-def explain_why(text: str) -> dict:
-    explainer = LimeTextExplainer(class_names=["negative", "positive"])
+@functools.lru_cache(maxsize=128)
+def _explain_why_cached(text: str, seed: int) -> str:
+    np.random.seed(seed)
+    explainer = LimeTextExplainer(
+        class_names=["negative", "positive"],
+        random_state=seed,
+    )
     explanation = explainer.explain_instance(
         text,
         _model_a_proba,
@@ -42,17 +61,24 @@ def explain_why(text: str) -> dict:
     base_output = model_a(text, truncation=True, max_length=512)
     pos_score = _get_positive_score(base_output)
     predicted_label = "positive" if pos_score >= 0.5 else "negative"
+    confidence = round(pos_score if predicted_label == "positive" else 1.0 - pos_score, 4)
 
     token_weights = explanation.as_list()
 
-    return {
+    result = {
         "label": predicted_label,
-        "confidence": round(pos_score if predicted_label == "positive" else 1.0 - pos_score, 4),
+        "confidence": confidence,
+        "attribution_warning": confidence > 0.95,
         "tokens": [
             {"token": token, "weight": round(float(weight), 4)}
             for token, weight in token_weights
         ],
     }
+    return json.dumps(result)
+
+
+def explain_why(text: str, seed: int = 42) -> dict:
+    return json.loads(_explain_why_cached(text, seed))
 
 
 def explain_flip(text: str) -> dict:
