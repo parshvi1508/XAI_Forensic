@@ -5,8 +5,7 @@ import numpy as np
 MODEL_A_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
 MODEL_B_NAME = "cardiffnlp/twitter-roberta-base-sentiment-latest"
 
-# load both pipelines at module import time so FastAPI does not reload on each request
-# top_k=None returns all class scores, which we need for LIME's predict_proba interface
+# top_k=None needed for LIME's predict_proba interface
 model_a = pipeline("text-classification", model=MODEL_A_NAME, top_k=None)
 model_b = pipeline("text-classification", model=MODEL_B_NAME, top_k=None)
 
@@ -15,18 +14,14 @@ print(f"loaded model B: {MODEL_B_NAME}")
 
 
 def _get_positive_score(pipeline_output: list) -> float:
-    # pipeline_output is a list of dicts like [{"label": "POSITIVE", "score": 0.99}]
-    # label names differ between models so we look for anything containing "pos" case-insensitive
+    # label names differ between models; match any containing "pos"
     for item in pipeline_output[0]:
         if "pos" in item["label"].lower():
             return item["score"]
-    # if no positive label found, return 1 minus the highest score (handles binary case)
     return 1.0 - max(item["score"] for item in pipeline_output[0])
 
 
 def _model_a_proba(texts: list[str]) -> np.ndarray:
-    # LIME requires a function that takes a list of strings and returns a 2D array
-    # shape: (n_samples, n_classes), columns are [negative_prob, positive_prob]
     results = []
     for text in texts:
         output = model_a(text, truncation=True, max_length=512)
@@ -36,9 +31,6 @@ def _model_a_proba(texts: list[str]) -> np.ndarray:
 
 
 def explain_why(text: str) -> dict:
-    # LIME perturbs the input by masking tokens and observing how predictions change
-    # n_samples=300 is a tradeoff: lower is faster, higher is more accurate, 300 is enough for short texts
-    # num_features=10 means we return the top 10 most influential tokens
     explainer = LimeTextExplainer(class_names=["negative", "positive"])
     explanation = explainer.explain_instance(
         text,
@@ -52,7 +44,6 @@ def explain_why(text: str) -> dict:
     predicted_label = "positive" if pos_score >= 0.5 else "negative"
 
     token_weights = explanation.as_list()
-    # as_list() returns [(token, weight), ...] where positive weight means token pushes toward positive class
 
     return {
         "label": predicted_label,
@@ -65,8 +56,6 @@ def explain_why(text: str) -> dict:
 
 
 def explain_flip(text: str) -> dict:
-    # greedy counterfactual: mask each word one at a time, find the word whose removal most changes the prediction
-    # this is O(n) in sentence length, fast enough for typical inputs
     words = text.split()
     base_output = model_a(text, truncation=True, max_length=512)
     base_pos = _get_positive_score(base_output)
@@ -111,8 +100,6 @@ def explain_flip(text: str) -> dict:
 
 
 def explain_disagree(text: str) -> dict:
-    # run both models and compute the absolute difference in their positive class confidence
-    # a high divergence score means the models have different views, which is meaningful for XAI
     output_a = model_a(text, truncation=True, max_length=512)
     output_b = model_b(text, truncation=True, max_length=512)
 

@@ -1,0 +1,30 @@
+input_id,category,text,mean_jaccard_top5,min_jaccard_top5,mean_kendall_tau,min_kendall_tau,label_stable,confidence_std,top1_unanimous
+1,negation_minimal_pairs,I am not entirely unhappy with this result.,0.5714,0.4286,0.4429,0.1429,True,0.0,True
+2,negation_minimal_pairs,This is not good.,1.0,1.0,0.6,0.0,True,0.0,True
+3,negation_minimal_pairs,This is good.,1.0,1.0,1.0,1.0,True,0.0,True
+4,negation_minimal_pairs,I would not recommend this to anyone.,0.6857,0.4286,0.5238,0.2381,True,0.0,True
+5,negation_minimal_pairs,Nothing about this experience was disappointing.,0.7333,0.6667,0.28,-0.3333,True,0.0,False
+6,lexical_shortcuts,The movie was terrible but I loved every minute of it.,0.5,0.4286,0.4578,0.3333,True,0.0,True
+7,lexical_shortcuts,"Excellent packaging, but the product itself is useless.",0.7667,0.6667,0.6571,0.4286,True,0.0,True
+8,lexical_shortcuts,I love how badly this was designed.,0.8,0.6667,0.7333,0.5238,True,0.0,True
+9,lexical_shortcuts,Fine.,1.0,1.0,nan,NaN,True,0.0,True
+10,lexical_shortcuts,Absolutely phenomenal waste of my time.,0.8,0.6667,0.6267,0.4667,True,0.0,True
+11,ambiguity,"It was okay, I guess.",1.0,1.0,0.6,0.2,True,0.0,True
+12,ambiguity,That is one way to do it.,0.8667,0.6667,0.5619,0.2381,True,0.0,False
+13,ambiguity,I have seen worse.,1.0,1.0,0.5333,0.0,True,0.0,True
+14,ambiguity,The service was exactly what I expected.,1.0,1.0,0.7714,0.619,True,0.0,False
+15,ambiguity,It is what it is.,1.0,1.0,1.0,1.0,True,0.0,True
+16,distribution_style_shift,ngl this slaps fr fr no cap,1.0,1.0,0.84,0.7333,True,0.0,False
+17,distribution_style_shift,The patient presents with acute exacerbation of chronic symptoms.,0.5714,0.4286,0.4889,0.3333,True,0.0,False
+18,distribution_style_shift,Revenue increased 12% YoY driven by strong Q4 performance.,0.5714,0.4286,0.5333,0.1667,True,0.0,True
+19,distribution_style_shift,lmaooo this is so bad its good,0.6762,0.4286,0.7333,0.5238,True,0.0,True
+20,distribution_style_shift,"Per the attached memo, please advise on next steps.",0.8,0.6667,0.8222,0.7222,True,0.0,False
+21,strong_baselines,This is the best product I have ever purchased.,0.4643,0.25,0.3,0.0,True,0.0,False
+22,strong_baselines,"Terrible experience, complete waste of money.",0.7,0.6667,0.52,0.2,True,0.0,True
+23,strong_baselines,I absolutely love everything about this.,1.0,1.0,0.8667,0.7333,True,0.0,False
+24,strong_baselines,This is awful and I regret buying it.,0.5238,0.4286,0.5143,0.2857,True,0.0,False
+25,strong_baselines,The quality exceeded all my expectations and I am thrilled.,0.6762,0.4286,0.4933,0.3333,True,0.0,True
+26,edge_cases,good good good good good,1.0,1.0,nan,NaN,True,0.0,True
+27,edge_cases,The the the the movie was great.,1.0,1.0,0.88,0.8,True,0.0,True
+28,edge_cases,I think that maybe it could possibly be somewhat decent.,0.7714,0.4286,0.7156,0.5111,True,0.0,False
+29,edge_cases,Amazing! Horrible! Amazing! Horrible!,1.0,1.0,1.0,1.0,True,0.0,True

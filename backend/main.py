@@ -61,9 +61,6 @@ def disagree(body: TextInput):
 
 @app.post("/analyse")
 def analyse(body: TextInput):
-    # single endpoint that runs all three methods and returns combined JSON
-    # the frontend calls this once instead of three parallel calls
-    # tradeoff: slower than parallel calls but simpler to wire on the frontend
     if len(body.text) > 1000:
         raise HTTPException(status_code=400, detail="text exceeds 1000 character limit")
     if not body.text.strip():

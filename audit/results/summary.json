@@ -1,0 +1,107 @@
+{
+  "experiment_metadata": {
+    "model": "distilbert-base-uncased-finetuned-sst-2-english",
+    "lime_version": "0.2.0.1",
+    "torch_version": "2.14.0+cpu",
+    "transformers_version": "5.16.1",
+    "numpy_version": "2.5.3",
+    "scipy_version": "1.18.1",
+    "sklearn_version": "1.9.0",
+    "python_version": "3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "seeds": [
+      42,
+      123,
+      456,
+      789,
+      1024
+    ],
+    "num_samples": 300,
+    "num_features": 10,
+    "run_timestamp": "2026-09-08T08:01:01.210119+00:00",
+    "total_duration_seconds": 1268.7,
+    "resumed": false
+  },
+  "stability_summary": {
+    "overall_mean_jaccard_top5": 0.8096,
+    "overall_mean_kendall_tau": NaN,
+    "inputs_with_perfect_jaccard": 12,
+    "inputs_with_jaccard_below_threshold": 6,
+    "inputs_with_label_instability": 0,
+    "inputs_with_unanimous_top1": 19,
+    "total_inputs": 29,
+    "threshold_jaccard": 0.6,
+    "threshold_kendall": 0.5,
+    "passes_jaccard_threshold": true,
+    "passes_kendall_threshold": false,
+    "per_category": {
+      "negation_minimal_pairs": {
+        "mean_jaccard": 0.7981,
+        "mean_kendall_tau": 0.5693
+      },
+      "lexical_shortcuts": {
+        "mean_jaccard": 0.7733,
+        "mean_kendall_tau": NaN
+      },
+      "ambiguity": {
+        "mean_jaccard": 0.9733,
+        "mean_kendall_tau": 0.6933
+      },
+      "distribution_style_shift": {
+        "mean_jaccard": 0.7238,
+        "mean_kendall_tau": 0.6835
+      },
+      "strong_baselines": {
+        "mean_jaccard": 0.6729,
+        "mean_kendall_tau": 0.5389
+      },
+      "edge_cases": {
+        "mean_jaccard": 0.9428,
+        "mean_kendall_tau": NaN
+      }
+    },
+    "label_unstable_inputs": []
+  },
+  "faithfulness_summary": {
+    "total_deletion_tests": 28,
+    "direction_correct_count": 25,
+    "direction_correct_rate": 0.8929,
+    "label_flip_count": 11,
+    "label_flip_rate": 0.3929,
+    "mean_abs_confidence_delta": 0.3846,
+    "threshold_direction_correct": 0.7,
+    "passes_faithfulness_threshold": true,
+    "per_category": {
+      "negation_minimal_pairs": {
+        "direction_correct_rate": 0.8,
+        "label_flip_rate": 0.6,
+        "mean_abs_delta": 0.5903
+      },
+      "lexical_shortcuts": {
+        "direction_correct_rate": 1.0,
+        "label_flip_rate": 1.0,
+        "mean_abs_delta": 0.9951
+      },
+      "ambiguity": {
+        "direction_correct_rate": 1.0,
+        "label_flip_rate": 0.4,
+        "mean_abs_delta": 0.4076
+      },
+      "distribution_style_shift": {
+        "direction_correct_rate": 1.0,
+        "label_flip_rate": 0.2,
+        "mean_abs_delta": 0.2297
+      },
+      "strong_baselines": {
+        "direction_correct_rate": 0.8,
+        "label_flip_rate": 0.0,
+        "mean_abs_delta": 0.0002
+      },
+      "edge_cases": {
+        "direction_correct_rate": 0.75,
+        "label_flip_rate": 0.25,
+        "mean_abs_delta": 0.1622
+      }
+    }
+  }
+}
