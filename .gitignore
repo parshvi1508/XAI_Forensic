@@ -1,8 +1,6 @@
 .env
 .env.local
 audit/__pycache__
-audit/protocol.md
-audit/failure_memo.md
 __pycache__/
 skills-lock.json
 *.pyc
