@@ -17,7 +17,7 @@ export default function Home() {
   const [fatalError, setFatalError] = useState(null);
 
   async function post(endpoint) {
-    const res = await fetch(`${API}/${endpoint}`, {
+    const res = await fetch(`${API}/v1/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
@@ -110,6 +110,12 @@ export default function Home() {
             className="font-mono text-[11px] text-[#96a8be] hover:text-[#58a6ff] transition-colors tracking-wide"
           >
             API Docs
+          </a>
+          <a
+            href="/audit"
+            className="font-mono text-[11px] text-[#96a8be] hover:text-[#58a6ff] transition-colors tracking-wide"
+          >
+            Audit
           </a>
           {hasAnyResult && !loading && (
             <span className="font-mono text-[10px] tracking-widest uppercase text-[#3ecf6f] border border-[#1e4030] bg-[#0d1f17] rounded px-2 py-1 hidden sm:inline">
@@ -204,7 +210,7 @@ export default function Home() {
 
         {/* Panels */}
         <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          <WhyPanel     data={results.why}     error={errors.why}     loading={loading} />
+          <WhyPanel     data={results.why}     error={errors.why}     loading={loading}  text={text} />
           <FlipPanel    data={results.flip}    error={errors.flip}    loading={loading} />
           <DisagreePanel data={results.disagree} error={errors.disagree} loading={loading} />
         </section>
@@ -331,7 +337,7 @@ function ErrorBox({ message }) {
 
 /* ---- WHY panel ---- */
 
-function WhyPanel({ data, error, loading }) {
+function WhyPanel({ data, error, loading, text }) {
   return (
     <PanelShell
       id="panel-why"
@@ -369,6 +375,28 @@ function WhyPanel({ data, error, loading }) {
               }
             />
           </div>
+
+          {typeof data.confidence === "number" && data.confidence > 0.95 && (
+            <div className="flex items-start gap-3 bg-[#1a1400] border border-[#3a2e00] rounded px-4 py-3">
+              <span className="font-mono text-[#e0a052] text-[10px] font-bold shrink-0 mt-0.5">[WARN]</span>
+              <p className="font-sans text-sm text-[#e0c080] leading-relaxed">
+                Attribution unstable at this confidence level. The model found redundant
+                evidence across multiple tokens. Prediction is reliable but the token
+                breakdown is not. Audit data shows mean Jaccard similarity of 0.46 on
+                inputs with confidence above 95%.
+              </p>
+            </div>
+          )}
+
+          {text && text.split(/\s+/).filter(Boolean).length > 50 && (
+            <div className="flex items-start gap-3 bg-[#1a1400] border border-[#3a2e00] rounded px-4 py-3">
+              <span className="font-mono text-[#e0a052] text-[10px] font-bold shrink-0 mt-0.5">[NOTE]</span>
+              <p className="font-sans text-sm text-[#e0c080] leading-relaxed">
+                Long input (50+ words). LIME perturbation space grows combinatorially
+                with input length. Token attributions may be less stable.
+              </p>
+            </div>
+          )}
 
           {Array.isArray(data.tokens) && data.tokens.length > 0 ? (
             <div className="space-y-2">

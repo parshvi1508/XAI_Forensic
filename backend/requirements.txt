@@ -6,3 +6,4 @@ lime==0.2.0.1
 numpy==2.4.4
 scikit-learn==1.8.0
 scipy==1.17.1
+slowapi==0.1.9
