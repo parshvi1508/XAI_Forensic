@@ -1,0 +1,23 @@
+{
+  "model": "distilbert-base-uncased-finetuned-sst-2-english",
+  "lime_version": "0.2.0.1",
+  "torch_version": "2.14.0+cpu",
+  "transformers_version": "5.16.1",
+  "numpy_version": "2.5.3",
+  "scipy_version": "1.18.1",
+  "sklearn_version": "1.9.0",
+  "python_version": "3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "seeds": [
+    42,
+    123,
+    456,
+    789,
+    1024
+  ],
+  "num_samples": 300,
+  "num_features": 10,
+  "run_timestamp": "2026-09-08T08:01:01.210119+00:00",
+  "total_duration_seconds": 1268.7,
+  "resumed": false
+}

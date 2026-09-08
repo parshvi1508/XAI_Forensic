@@ -1,0 +1,187 @@
+{
+  "version": "1.0",
+  "frozen_at": "2026-09-07T00:00:00Z",
+  "description": "Pre-registered test set for LIME attribution audit. DO NOT MODIFY after initial commit.",
+  "inputs": [
+    {
+      "id": 1,
+      "category": "negation_minimal_pairs",
+      "text": "I am not entirely unhappy with this result.",
+      "rationale": "Double negation; LIME may attribute to 'unhappy' and miss 'not'"
+    },
+    {
+      "id": 2,
+      "category": "negation_minimal_pairs",
+      "text": "This is not good.",
+      "rationale": "Simple negation. Minimal pair with input 3. Does LIME weight 'not'?"
+    },
+    {
+      "id": 3,
+      "category": "negation_minimal_pairs",
+      "text": "This is good.",
+      "rationale": "Minimal pair baseline for input 2. Expect strong positive attribution to 'good'"
+    },
+    {
+      "id": 4,
+      "category": "negation_minimal_pairs",
+      "text": "I would not recommend this to anyone.",
+      "rationale": "Negation + strong negative downstream. Does 'not' or 'recommend' get more weight?"
+    },
+    {
+      "id": 5,
+      "category": "negation_minimal_pairs",
+      "text": "Nothing about this experience was disappointing.",
+      "rationale": "Negation of a negative. Semantically positive but full of negative-surface tokens"
+    },
+    {
+      "id": 6,
+      "category": "lexical_shortcuts",
+      "text": "The movie was terrible but I loved every minute of it.",
+      "rationale": "'terrible' vs 'loved' - contradictory lexical signals. Which does LIME pick?"
+    },
+    {
+      "id": 7,
+      "category": "lexical_shortcuts",
+      "text": "Excellent packaging, but the product itself is useless.",
+      "rationale": "Positive word first, negative verdict expected. Does LIME over-weight 'Excellent'?"
+    },
+    {
+      "id": 8,
+      "category": "lexical_shortcuts",
+      "text": "I love how badly this was designed.",
+      "rationale": "Sarcastic use of 'love'. LIME likely attributes to 'love' as positive"
+    },
+    {
+      "id": 9,
+      "category": "lexical_shortcuts",
+      "text": "Fine.",
+      "rationale": "Single word, minimal context. Already flagged in README as unstable for LIME"
+    },
+    {
+      "id": 10,
+      "category": "lexical_shortcuts",
+      "text": "Absolutely phenomenal waste of my time.",
+      "rationale": "'Absolutely phenomenal' are strong positive cues but sentence is negative"
+    },
+    {
+      "id": 11,
+      "category": "ambiguity",
+      "text": "It was okay, I guess.",
+      "rationale": "Lukewarm/ambiguous. Near decision boundary. Expect high LIME instability"
+    },
+    {
+      "id": 12,
+      "category": "ambiguity",
+      "text": "That is one way to do it.",
+      "rationale": "Pragmatically neutral-to-negative but lexically flat"
+    },
+    {
+      "id": 13,
+      "category": "ambiguity",
+      "text": "I have seen worse.",
+      "rationale": "Faint praise; could go either way"
+    },
+    {
+      "id": 14,
+      "category": "ambiguity",
+      "text": "The service was exactly what I expected.",
+      "rationale": "Ambiguous: could mean good or bad depending on expectations"
+    },
+    {
+      "id": 15,
+      "category": "ambiguity",
+      "text": "It is what it is.",
+      "rationale": "Tautology, no sentiment content. Tests LIME on near-zero-signal input"
+    },
+    {
+      "id": 16,
+      "category": "distribution_style_shift",
+      "text": "ngl this slaps fr fr no cap",
+      "rationale": "Internet slang / Gen-Z. Far from SST-2 movie reviews"
+    },
+    {
+      "id": 17,
+      "category": "distribution_style_shift",
+      "text": "The patient presents with acute exacerbation of chronic symptoms.",
+      "rationale": "Clinical language. No sentiment content; OOD for SST-2"
+    },
+    {
+      "id": 18,
+      "category": "distribution_style_shift",
+      "text": "Revenue increased 12% YoY driven by strong Q4 performance.",
+      "rationale": "Financial/earnings language. Positive facts but not sentiment-positive"
+    },
+    {
+      "id": 19,
+      "category": "distribution_style_shift",
+      "text": "lmaooo this is so bad its good",
+      "rationale": "Informal internet speak. Mixed signals plus typos"
+    },
+    {
+      "id": 20,
+      "category": "distribution_style_shift",
+      "text": "Per the attached memo, please advise on next steps.",
+      "rationale": "Corporate email tone. Neutral, formal, zero sentiment"
+    },
+    {
+      "id": 21,
+      "category": "strong_baselines",
+      "text": "This is the best product I have ever purchased.",
+      "rationale": "Unambiguously positive. LIME should be stable and faithful here"
+    },
+    {
+      "id": 22,
+      "category": "strong_baselines",
+      "text": "Terrible experience, complete waste of money.",
+      "rationale": "Unambiguously negative. Expect stable negative attributions"
+    },
+    {
+      "id": 23,
+      "category": "strong_baselines",
+      "text": "I absolutely love everything about this.",
+      "rationale": "Strong positive. Baseline for stability measurement"
+    },
+    {
+      "id": 24,
+      "category": "strong_baselines",
+      "text": "This is awful and I regret buying it.",
+      "rationale": "Strong negative. Baseline for stability measurement"
+    },
+    {
+      "id": 25,
+      "category": "strong_baselines",
+      "text": "The quality exceeded all my expectations and I am thrilled.",
+      "rationale": "Longer unambiguous positive. Tests stability on longer clear inputs"
+    },
+    {
+      "id": 26,
+      "category": "edge_cases",
+      "text": "good good good good good",
+      "rationale": "Repeated single token. LIME must distribute weight; tests degenerate case"
+    },
+    {
+      "id": 27,
+      "category": "edge_cases",
+      "text": "The the the the movie was great.",
+      "rationale": "Repeated function words. Does LIME attribute to 'the' or 'great'?"
+    },
+    {
+      "id": 28,
+      "category": "edge_cases",
+      "text": "I think that maybe it could possibly be somewhat decent.",
+      "rationale": "Heavily hedged. Many low-signal words dilute attribution"
+    },
+    {
+      "id": 29,
+      "category": "edge_cases",
+      "text": "Amazing! Horrible! Amazing! Horrible!",
+      "rationale": "Alternating contradictions. Near-random for bag-of-words approach"
+    },
+    {
+      "id": 30,
+      "category": "edge_cases",
+      "text": " ",
+      "rationale": "Near-empty input. Tests pipeline robustness. Expected to fail gracefully"
+    }
+  ]
+}
