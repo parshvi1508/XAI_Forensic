@@ -5,6 +5,7 @@ __pycache__/
 skills-lock.json
 *.pyc
 *.pyo
+.venv audit backend dist frontend lime_audit_results public scripts src tests tests/__init__.py tests/test_regression.py .gitignore article.md LICENSE Makefile pyproject.toml README.md REVIEW.md skills-lock.json xai_forensics_explained.md
 REVIEW.md
 venv/
 .venv/

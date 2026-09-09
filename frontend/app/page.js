@@ -17,7 +17,7 @@ export default function Home() {
   const [fatalError, setFatalError] = useState(null);
 
   async function post(endpoint) {
-    const res = await fetch(`${API}/v1/${endpoint}`, {
+    const res = await fetch(`${API}/${endpoint}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
