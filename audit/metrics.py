@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import stats
 from itertools import combinations
+from transformers import AutoTokenizer
 
 
 def jaccard_top_k(tokens_a: list[str], tokens_b: list[str], k: int = 5) -> float:
@@ -36,6 +37,34 @@ def faithfulness_direction_correct(token_weight: float, conf_delta: float) -> bo
     if abs(token_weight) < 1e-6 or abs(conf_delta) < 1e-6:
         return True
     return (token_weight > 0 and conf_delta < 0) or (token_weight < 0 and conf_delta > 0)
+
+
+def bootstrap_ci(
+    values: list[float],
+    n_bootstrap: int = 10000,
+    alpha: float = 0.05,
+    rng_seed: int = 42,
+) -> tuple[float, float]:
+    rng = np.random.RandomState(rng_seed)
+    arr = np.array(values)
+    boot_means = np.array([
+        np.mean(rng.choice(arr, size=len(arr), replace=True))
+        for _ in range(n_bootstrap)
+    ])
+    lower = float(np.percentile(boot_means, 100 * alpha / 2))
+    upper = float(np.percentile(boot_means, 100 * (1 - alpha / 2)))
+    return lower, upper
+
+
+def count_tokenizer_mismatch(text: str, model_name: str) -> dict:
+    lime_tokens = text.split()
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    wp_tokens = tokenizer.tokenize(text)
+    return {
+        "lime_token_count": len(lime_tokens),
+        "wordpiece_token_count": len(wp_tokens),
+        "token_mismatch": len(wp_tokens) - len(lime_tokens),
+    }
 
 
 def compute_pairwise_stability(
