@@ -132,6 +132,34 @@ def run_deletion_test(
     }
 
 
+def run_deletion_topk(
+    text: str,
+    top_tokens: list[str],
+    predict_fn,
+) -> dict:
+    words = text.split()
+    token_set = set(top_tokens)
+    masked_words = [w for w in words if w not in token_set]
+
+    if not masked_words:
+        return {
+            "modified_text": "",
+            "modified_label": "error",
+            "modified_positive_score": float("nan"),
+        }
+
+    masked_text = " ".join(masked_words)
+    proba = predict_fn([masked_text])
+    modified_pos = float(proba[0][1])
+    modified_label = "positive" if modified_pos >= 0.5 else "negative"
+
+    return {
+        "modified_text": masked_text,
+        "modified_label": modified_label,
+        "modified_positive_score": modified_pos,
+    }
+
+
 def get_environment_info():
     import lime
     import scipy
@@ -164,10 +192,13 @@ RAW_FIELDNAMES = (
 )
 
 DELETION_FIELDNAMES = [
-    "input_id", "category", "text", "removed_token", "token_lime_weight",
+    "input_id", "category", "text", "status",
+    "removed_token", "token_lime_weight",
     "original_label", "original_positive_score",
     "modified_label", "modified_positive_score",
     "confidence_delta", "label_flipped", "direction_correct",
+    "removed_top3", "delta_top3", "flipped_top3",
+    "removed_top5", "delta_top5", "flipped_top5",
 ]
 
 
@@ -263,6 +294,7 @@ def main():
     print(f"  {remaining} remaining\n")
 
     start_total = time.perf_counter()
+    skipped_inputs = []
 
     raw_mode = "a" if args.resume and os.path.exists(RAW_CSV_PATH) else "w"
     write_header = raw_mode == "w"
@@ -278,7 +310,13 @@ def main():
             category = inp["category"]
 
             if not text.strip():
-                print(f"  [{input_id}/30] SKIP empty/whitespace input")
+                print(f"  [{input_id}/30] SKIP empty/whitespace input (logged as skipped)")
+                skipped_inputs.append({
+                    "input_id": input_id,
+                    "category": category,
+                    "text": repr(text),
+                    "reason": "empty_or_whitespace",
+                })
                 continue
 
             print(f"  [{input_id}/30] Running base prediction...")
@@ -343,7 +381,7 @@ def main():
                     }
 
     print(f"\nRaw attributions saved to {RAW_CSV_PATH}")
-    print(f"\n[7/7] Running deletion faithfulness tests...")
+    print(f"\n[7/7] Running deletion faithfulness tests (top-1, top-3, top-5)...")
 
     from audit.metrics import faithfulness_direction_correct
 
@@ -362,6 +400,25 @@ def main():
 
             if input_id in completed_del:
                 print(f"  [{input_id}] Deletion already done, skipping")
+                continue
+
+            if not text.strip():
+                row = {
+                    "input_id": input_id,
+                    "category": category,
+                    "text": repr(text),
+                    "status": "skipped_empty",
+                    "removed_token": "", "token_lime_weight": "",
+                    "original_label": "", "original_positive_score": "",
+                    "modified_label": "", "modified_positive_score": "",
+                    "confidence_delta": "", "label_flipped": "",
+                    "direction_correct": "",
+                    "removed_top3": "", "delta_top3": "", "flipped_top3": "",
+                    "removed_top5": "", "delta_top5": "", "flipped_top5": "",
+                }
+                del_writer.writerow(row)
+                del_f.flush()
+                print(f"  [{input_id}] Logged as skipped_empty")
                 continue
 
             if input_id not in canonical_results:
@@ -386,13 +443,32 @@ def main():
             delta = deletion["modified_positive_score"] - canon["base_pos"]
             flipped = deletion["modified_label"] != canon["base_label"]
             dir_correct = faithfulness_direction_correct(top_weight, delta)
-            print(f"    Result: {canon['base_label']} -> {deletion['modified_label']}, "
-                  f"delta={delta:.6f}, flipped={flipped}, dir_correct={dir_correct}")
+            print(f"    Top-1: {canon['base_label']} -> {deletion['modified_label']}, "
+                  f"delta={delta:.6f}, flipped={flipped}")
+
+            top3_tokens = [t for t, _ in canon["tokens"][:3]]
+            del3 = run_deletion_topk(text, top3_tokens, predict_fn)
+            delta3 = ""
+            flipped3 = ""
+            if del3["modified_label"] != "error":
+                delta3 = round(del3["modified_positive_score"] - canon["base_pos"], 6)
+                flipped3 = del3["modified_label"] != canon["base_label"]
+                print(f"    Top-3: delta={delta3}, flipped={flipped3}")
+
+            top5_tokens = [t for t, _ in canon["tokens"][:5]]
+            del5 = run_deletion_topk(text, top5_tokens, predict_fn)
+            delta5 = ""
+            flipped5 = ""
+            if del5["modified_label"] != "error":
+                delta5 = round(del5["modified_positive_score"] - canon["base_pos"], 6)
+                flipped5 = del5["modified_label"] != canon["base_label"]
+                print(f"    Top-5: delta={delta5}, flipped={flipped5}")
 
             row = {
                 "input_id": input_id,
                 "category": category,
                 "text": text,
+                "status": "tested",
                 "removed_token": top_token,
                 "token_lime_weight": round(top_weight, 6),
                 "original_label": canon["base_label"],
@@ -402,6 +478,12 @@ def main():
                 "confidence_delta": round(delta, 6),
                 "label_flipped": flipped,
                 "direction_correct": dir_correct,
+                "removed_top3": "|".join(top3_tokens),
+                "delta_top3": delta3,
+                "flipped_top3": flipped3,
+                "removed_top5": "|".join(top5_tokens),
+                "delta_top5": delta5,
+                "flipped_top5": flipped5,
             }
             del_writer.writerow(row)
             del_f.flush()
@@ -413,6 +495,7 @@ def main():
     env_info["run_timestamp"] = datetime.now(timezone.utc).isoformat()
     env_info["total_duration_seconds"] = round(total_time, 1)
     env_info["resumed"] = args.resume
+    env_info["skipped_inputs"] = skipped_inputs
     env_path = os.path.join(RESULTS_DIR, "environment.json")
     with open(env_path, "w", encoding="utf-8") as f:
         json.dump(env_info, f, indent=2)

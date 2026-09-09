@@ -18,6 +18,7 @@ out/
 *.egg-info/
 dist/
 build/
+lime_audit_results/
 
 .cache/
 .DS_Store

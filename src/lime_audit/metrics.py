@@ -1,3 +1,5 @@
+"""Stability and faithfulness metrics for LIME audit."""
+
 import numpy as np
 from scipy import stats
 from itertools import combinations

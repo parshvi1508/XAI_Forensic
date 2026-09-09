@@ -1,10 +1,38 @@
 # XAI Forensics
 
+[![PyPI](https://img.shields.io/pypi/v/lime-audit)](https://pypi.org/project/lime-audit/)
+[![Python](https://img.shields.io/pypi/pyversions/lime-audit)](https://pypi.org/project/lime-audit/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 A diagnostic tool for evaluating when LIME token attributions are trustworthy on transformer sentiment classifiers. Runs three independent forensic checks (attribution stability, counterfactual faithfulness, cross-model agreement) and validates results against a 30-input pre-registered audit.
 
 **Key finding:** high-confidence predictions (>95%) produce the least stable attributions (mean Jaccard 0.46 on strong baselines), while lexical-shortcut inputs are perfectly faithful (Jaccard 1.0, 100% flip rate). This tool shows you when LIME is signal vs. noise.
 
 Sentiment classification is the controlled test task. The project evaluates the explanation method, not the classifier output.
+
+## Install as Package
+
+```bash
+pip install lime-audit
+```
+
+```bash
+# Full audit with default test set (30 inputs, DistilBERT-SST2)
+lime-audit run
+
+# Custom model + test set
+lime-audit run --model textattack/bert-base-uncased-SST-2 --test-set my_inputs.json
+
+# Generate report/charts from existing results
+lime-audit report --output lime_audit_results
+lime-audit charts --output lime_audit_results
+```
+
+Use as a library:
+
+```python
+from lime_audit.metrics import jaccard_similarity, bootstrap_ci, tokenizer_mismatch
+```
 
 
 
@@ -24,12 +52,12 @@ This sentence contains a double negation that causes the two models to genuinely
 
 
 
-![alt text](public/image.png)
-![alt text](public/image-1.png)
-![alt text](public/image-2.png)
-![alt text](public/image-3.png)
-![alt text](public/image-4.png)
-![alt text](public/image-5.png)
+![WHY Panel](https://raw.githubusercontent.com/parshvi1508/XAI_Forensic/main/public/image.png)
+![FLIP Panel](https://raw.githubusercontent.com/parshvi1508/XAI_Forensic/main/public/image-1.png)
+![DISAGREE Panel](https://raw.githubusercontent.com/parshvi1508/XAI_Forensic/main/public/image-2.png)
+![Audit Results](https://raw.githubusercontent.com/parshvi1508/XAI_Forensic/main/public/image-3.png)
+![Stability Chart](https://raw.githubusercontent.com/parshvi1508/XAI_Forensic/main/public/image-4.png)
+![Faithfulness Chart](https://raw.githubusercontent.com/parshvi1508/XAI_Forensic/main/public/image-5.png)
 
 ## What This Does
 
