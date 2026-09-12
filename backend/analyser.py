@@ -46,7 +46,6 @@ def _model_a_proba(texts: list[str]) -> np.ndarray:
 
 @functools.lru_cache(maxsize=128)
 def _explain_why_cached(text: str, seed: int) -> str:
-    np.random.seed(seed)
     explainer = LimeTextExplainer(
         class_names=["negative", "positive"],
         random_state=seed,
@@ -86,6 +85,25 @@ def explain_flip(text: str) -> dict:
     base_output = model_a(text, truncation=True, max_length=512)
     base_pos = _get_positive_score(base_output)
     base_label = "positive" if base_pos >= 0.5 else "negative"
+
+    MAX_FLIP_WORDS = 80
+    if len(words) > MAX_FLIP_WORDS:
+        words = words[:MAX_FLIP_WORDS]
+        text = " ".join(words)
+
+    if len(words) <= 1:
+        return {
+            "original_text": text,
+            "original_label": base_label,
+            "original_confidence": round(base_pos if base_label == "positive" else 1.0 - base_pos, 4),
+            "key_word": None,
+            "modified_text": text,
+            "modified_label": base_label,
+            "modified_confidence": round(base_pos if base_label == "positive" else 1.0 - base_pos, 4),
+            "flipped": False,
+            "delta": 0.0,
+            "error": "single_word_input",
+        }
 
     best_flip_word = None
     best_abs_delta = 0.0

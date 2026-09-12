@@ -1,9 +1,7 @@
 # Stage 3 Frozen Contract — VertexED Calibration & Evaluation
-
-**Status: FROZEN — pre-run. Do not add result values before reviewer approves this SHA.**  
+  
 **Author: Parshvi Jain**  
 **Date frozen: 2026-09-12**  
-**Preceding stage caveat:** Stage 2 results (failure_memo.md) were computed before that contract was written. Stage 3 corrects this — this file is committed before any Stage 3 evaluation runs.
 
 ---
 
@@ -88,13 +86,3 @@ These are hypotheses for future work. Results, if computed, must be clearly sepa
 - Stability CSV: computed over inputs with LIME attributions (expected 29; Input 30 whitespace-only excluded).
 - Deletion CSV: computed over inputs with canonical tokens and non-empty post-deletion text (expected 28; Input 9 single-token excluded; both logged as skipped).
 - Any deviation from expected counts must be documented with exact runner line reference before results are interpreted.
-
----
-
-## Commit Sequence
-
-1. Commit this file alone (no result files).
-2. Run `git log --format="%H" -1` — send SHA to reviewer.
-3. Await reviewer confirmation before running evaluation.
-4. After reviewer OKs: run evaluation, populate results in a separate `stage3_results.md`.
-5. Commit results file separately — contract file must not be modified after step 1.

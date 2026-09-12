@@ -58,9 +58,71 @@ def bootstrap_ci(
     return lower, upper
 
 
-def count_tokenizer_mismatch(text: str, model_name: str) -> dict:
+def expected_calibration_error(
+    predicted_probs: list[float],
+    true_labels: list[int],
+    n_bins: int = 10,
+) -> dict:
+    probs = np.array(predicted_probs)
+    labels = np.array(true_labels)
+    brier = float(np.mean((probs - labels) ** 2))
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    bin_data = []
+    ece = 0.0
+    for i in range(n_bins):
+        lo, hi = bin_edges[i], bin_edges[i + 1]
+        mask = (probs >= lo) & (probs < hi) if i < n_bins - 1 else (probs >= lo) & (probs <= hi)
+        count = int(mask.sum())
+        if count == 0:
+            bin_data.append({"bin_lo": round(float(lo), 2), "bin_hi": round(float(hi), 2),
+                             "count": 0, "mean_predicted": None, "mean_actual": None, "gap": None})
+            continue
+        mean_pred = float(probs[mask].mean())
+        mean_actual = float(labels[mask].mean())
+        gap = abs(mean_pred - mean_actual)
+        ece += gap * count
+        bin_data.append({"bin_lo": round(float(lo), 2), "bin_hi": round(float(hi), 2),
+                         "count": count, "mean_predicted": round(mean_pred, 4),
+                         "mean_actual": round(mean_actual, 4), "gap": round(gap, 4)})
+    ece = float(ece / len(probs)) if len(probs) > 0 else 0.0
+    return {"ece": round(ece, 4), "brier": round(brier, 4), "n_bins": n_bins,
+            "n_samples": len(probs), "bin_data": bin_data}
+
+
+def confidence_bucket_analysis(
+    inputs: list[dict],
+    buckets: list[tuple[float, float]] = None,
+) -> dict:
+    if buckets is None:
+        buckets = [(0.0, 0.9), (0.9, 0.99), (0.99, 1.001)]
+    result = {}
+    for lo, hi in buckets:
+        label = f"{lo:.2f}-{hi:.2f}"
+        subset = [x for x in inputs if lo <= x["confidence"] < hi]
+        if not subset:
+            result[label] = {"count": 0}
+            continue
+        dir_correct = sum(1 for x in subset if x["direction_correct"])
+        flipped = sum(1 for x in subset if x["label_flipped"])
+        deltas = [x["abs_delta"] for x in subset]
+        result[label] = {
+            "count": len(subset),
+            "direction_correct_rate": round(dir_correct / len(subset), 4),
+            "label_flip_rate": round(flipped / len(subset), 4),
+            "mean_abs_delta": round(float(np.mean(deltas)), 6),
+            "max_abs_delta": round(float(np.max(deltas)), 6),
+            "min_abs_delta": round(float(np.min(deltas)), 6),
+            "input_ids": [x.get("input_id") for x in subset],
+        }
+    return result
+
+
+def count_tokenizer_mismatch(text: str, model_name_or_tokenizer) -> dict:
     lime_tokens = text.split()
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    if isinstance(model_name_or_tokenizer, str):
+        tokenizer = AutoTokenizer.from_pretrained(model_name_or_tokenizer)
+    else:
+        tokenizer = model_name_or_tokenizer
     wp_tokens = tokenizer.tokenize(text)
     return {
         "lime_token_count": len(lime_tokens),

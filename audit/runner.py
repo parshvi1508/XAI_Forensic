@@ -50,11 +50,18 @@ def load_model(model_name: str):
     return model
 
 
+_POSITIVE_LABELS = {"POSITIVE", "positive"}
+
+
 def get_positive_score(pipeline_output: list) -> float:
     for item in pipeline_output[0]:
-        if "pos" in item["label"].lower():
+        if item["label"] in _POSITIVE_LABELS:
             return item["score"]
-    return 1.0 - max(item["score"] for item in pipeline_output[0])
+    known = [item["label"] for item in pipeline_output[0]]
+    raise ValueError(
+        f"No positive label found in {known}. "
+        f"Expected one of: {_POSITIVE_LABELS}"
+    )
 
 
 def make_predict_fn(model):
@@ -102,13 +109,30 @@ def run_deletion_test(
     predict_fn,
 ) -> dict:
     words = text.split()
-    masked_words = [w for w in words if w != top_token]
 
-    if not masked_words or masked_words == words:
+    # Remove only FIRST occurrence of top_token (not all — matters for repeated tokens)
+    first_idx = None
+    for i, w in enumerate(words):
+        if w == top_token:
+            first_idx = i
+            break
+    if first_idx is None:
         for i, w in enumerate(words):
             if top_token.lower() in w.lower():
-                masked_words = words[:i] + words[i + 1:]
+                first_idx = i
                 break
+
+    if first_idx is None:
+        return {
+            "modified_text": text,
+            "modified_label": "error",
+            "modified_positive_score": float("nan"),
+            "confidence_delta": float("nan"),
+            "label_flipped": False,
+            "direction_correct": False,
+        }
+
+    masked_words = words[:first_idx] + words[first_idx + 1:]
 
     if not masked_words:
         return {
@@ -383,7 +407,7 @@ def main():
     print(f"\nRaw attributions saved to {RAW_CSV_PATH}")
     print(f"\n[7/7] Running deletion faithfulness tests (top-1, top-3, top-5)...")
 
-    from audit.metrics import faithfulness_direction_correct
+    from lime_audit.metrics import faithfulness_direction_correct
 
     del_mode = "a" if args.resume and os.path.exists(DELETION_CSV_PATH) else "w"
     del_write_header = del_mode == "w"
@@ -437,7 +461,23 @@ def main():
             deletion = run_deletion_test(text, top_token, predict_fn)
 
             if deletion["modified_label"] == "error":
-                print(f"  [{input_id}] Deletion failed (empty result)")
+                print(f"  [{input_id}] Deletion produced empty text (single-token input), logging as skipped")
+                row = {
+                    "input_id": input_id,
+                    "category": category,
+                    "text": text,
+                    "status": "skipped_single_token",
+                    "removed_token": top_token, "token_lime_weight": round(top_weight, 6),
+                    "original_label": canon["base_label"],
+                    "original_positive_score": round(canon["base_pos"], 6),
+                    "modified_label": "", "modified_positive_score": "",
+                    "confidence_delta": "", "label_flipped": "",
+                    "direction_correct": "",
+                    "removed_top3": "", "delta_top3": "", "flipped_top3": "",
+                    "removed_top5": "", "delta_top5": "", "flipped_top5": "",
+                }
+                del_writer.writerow(row)
+                del_f.flush()
                 continue
 
             delta = deletion["modified_positive_score"] - canon["base_pos"]

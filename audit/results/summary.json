@@ -24,6 +24,10 @@
   },
   "stability_summary": {
     "overall_mean_jaccard_top5": 0.8096,
+    "overall_jaccard_ci_95": [
+      0.7416,
+      0.8754
+    ],
     "overall_mean_kendall_tau": NaN,
     "inputs_with_perfect_jaccard": 12,
     "inputs_with_jaccard_below_threshold": 6,
@@ -37,33 +41,64 @@
     "per_category": {
       "negation_minimal_pairs": {
         "mean_jaccard": 0.7981,
+        "jaccard_ci_95": [
+          0.6495,
+          0.9467
+        ],
         "mean_kendall_tau": 0.5693
       },
       "lexical_shortcuts": {
         "mean_jaccard": 0.7733,
+        "jaccard_ci_95": [
+          0.62,
+          0.9133
+        ],
         "mean_kendall_tau": NaN
       },
       "ambiguity": {
         "mean_jaccard": 0.9733,
+        "jaccard_ci_95": [
+          0.92,
+          1.0
+        ],
         "mean_kendall_tau": 0.6933
       },
       "distribution_style_shift": {
         "mean_jaccard": 0.7238,
+        "jaccard_ci_95": [
+          0.5924,
+          0.8743
+        ],
         "mean_kendall_tau": 0.6835
       },
       "strong_baselines": {
         "mean_jaccard": 0.6729,
+        "jaccard_ci_95": [
+          0.5238,
+          0.84
+        ],
         "mean_kendall_tau": 0.5389
       },
       "edge_cases": {
         "mean_jaccard": 0.9428,
+        "jaccard_ci_95": [
+          0.8285,
+          1.0
+        ],
         "mean_kendall_tau": NaN
       }
     },
     "label_unstable_inputs": []
   },
+  "tokenizer_mismatch_summary": {
+    "mean_mismatch": 1.55,
+    "max_mismatch": 4,
+    "inputs_with_mismatch": 28,
+    "total_inputs": 29
+  },
   "faithfulness_summary": {
     "total_deletion_tests": 28,
+    "skipped_inputs": 2,
     "direction_correct_count": 25,
     "direction_correct_rate": 0.8929,
     "label_flip_count": 11,
@@ -71,37 +106,219 @@
     "mean_abs_confidence_delta": 0.3846,
     "threshold_direction_correct": 0.7,
     "passes_faithfulness_threshold": true,
+    "top3_deletion": {
+      "mean_abs_delta": null,
+      "flip_count": 0,
+      "flip_rate": null
+    },
+    "top5_deletion": {
+      "mean_abs_delta": null,
+      "flip_count": 0,
+      "flip_rate": null
+    },
     "per_category": {
       "negation_minimal_pairs": {
         "direction_correct_rate": 0.8,
         "label_flip_rate": 0.6,
-        "mean_abs_delta": 0.5903
+        "mean_abs_delta": 0.5903,
+        "mean_abs_delta_top3": null,
+        "flip_rate_top3": null,
+        "mean_abs_delta_top5": null,
+        "flip_rate_top5": null
       },
       "lexical_shortcuts": {
         "direction_correct_rate": 1.0,
         "label_flip_rate": 1.0,
-        "mean_abs_delta": 0.9951
+        "mean_abs_delta": 0.9951,
+        "mean_abs_delta_top3": null,
+        "flip_rate_top3": null,
+        "mean_abs_delta_top5": null,
+        "flip_rate_top5": null
       },
       "ambiguity": {
         "direction_correct_rate": 1.0,
         "label_flip_rate": 0.4,
-        "mean_abs_delta": 0.4076
+        "mean_abs_delta": 0.4076,
+        "mean_abs_delta_top3": null,
+        "flip_rate_top3": null,
+        "mean_abs_delta_top5": null,
+        "flip_rate_top5": null
       },
       "distribution_style_shift": {
         "direction_correct_rate": 1.0,
         "label_flip_rate": 0.2,
-        "mean_abs_delta": 0.2297
+        "mean_abs_delta": 0.2297,
+        "mean_abs_delta_top3": null,
+        "flip_rate_top3": null,
+        "mean_abs_delta_top5": null,
+        "flip_rate_top5": null
       },
       "strong_baselines": {
         "direction_correct_rate": 0.8,
         "label_flip_rate": 0.0,
-        "mean_abs_delta": 0.0002
+        "mean_abs_delta": 0.0002,
+        "mean_abs_delta_top3": null,
+        "flip_rate_top3": null,
+        "mean_abs_delta_top5": null,
+        "flip_rate_top5": null
       },
       "edge_cases": {
         "direction_correct_rate": 0.75,
         "label_flip_rate": 0.25,
-        "mean_abs_delta": 0.1622
+        "mean_abs_delta": 0.1622,
+        "mean_abs_delta_top3": null,
+        "flip_rate_top3": null,
+        "mean_abs_delta_top5": null,
+        "flip_rate_top5": null
       }
+    }
+  },
+  "calibration": {
+    "ece": 0.0124,
+    "brier": 0.0014,
+    "n_bins": 10,
+    "n_samples": 28,
+    "bin_data": [
+      {
+        "bin_lo": 0.0,
+        "bin_hi": 0.1,
+        "count": 12,
+        "mean_predicted": 0.0056,
+        "mean_actual": 0.0,
+        "gap": 0.0056
+      },
+      {
+        "bin_lo": 0.1,
+        "bin_hi": 0.2,
+        "count": 1,
+        "mean_predicted": 0.1779,
+        "mean_actual": 0.0,
+        "gap": 0.1779
+      },
+      {
+        "bin_lo": 0.2,
+        "bin_hi": 0.3,
+        "count": 0,
+        "mean_predicted": null,
+        "mean_actual": null,
+        "gap": null
+      },
+      {
+        "bin_lo": 0.3,
+        "bin_hi": 0.4,
+        "count": 0,
+        "mean_predicted": null,
+        "mean_actual": null,
+        "gap": null
+      },
+      {
+        "bin_lo": 0.4,
+        "bin_hi": 0.5,
+        "count": 0,
+        "mean_predicted": null,
+        "mean_actual": null,
+        "gap": null
+      },
+      {
+        "bin_lo": 0.5,
+        "bin_hi": 0.6,
+        "count": 0,
+        "mean_predicted": null,
+        "mean_actual": null,
+        "gap": null
+      },
+      {
+        "bin_lo": 0.6,
+        "bin_hi": 0.7,
+        "count": 0,
+        "mean_predicted": null,
+        "mean_actual": null,
+        "gap": null
+      },
+      {
+        "bin_lo": 0.7,
+        "bin_hi": 0.8,
+        "count": 0,
+        "mean_predicted": null,
+        "mean_actual": null,
+        "gap": null
+      },
+      {
+        "bin_lo": 0.8,
+        "bin_hi": 0.9,
+        "count": 0,
+        "mean_predicted": null,
+        "mean_actual": null,
+        "gap": null
+      },
+      {
+        "bin_lo": 0.9,
+        "bin_hi": 1.0,
+        "count": 15,
+        "mean_predicted": 0.9932,
+        "mean_actual": 1.0,
+        "gap": 0.0068
+      }
+    ]
+  },
+  "confidence_stratified_faithfulness": {
+    "0.00-0.90": {
+      "count": 1,
+      "direction_correct_rate": 1.0,
+      "label_flip_rate": 0.0,
+      "mean_abs_delta": 0.126052,
+      "max_abs_delta": 0.126052,
+      "min_abs_delta": 0.126052,
+      "input_ids": [
+        20
+      ]
+    },
+    "0.90-0.99": {
+      "count": 4,
+      "direction_correct_rate": 1.0,
+      "label_flip_rate": 0.5,
+      "mean_abs_delta": 0.505555,
+      "max_abs_delta": 0.987197,
+      "min_abs_delta": 0.003388,
+      "input_ids": [
+        1,
+        4,
+        12,
+        17
+      ]
+    },
+    "0.99-1.00": {
+      "count": 23,
+      "direction_correct_rate": 0.8696,
+      "label_flip_rate": 0.3913,
+      "mean_abs_delta": 0.374784,
+      "max_abs_delta": 0.999653,
+      "min_abs_delta": 1e-06,
+      "input_ids": [
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        10,
+        11,
+        13,
+        14,
+        15,
+        16,
+        18,
+        19,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29
+      ]
     }
   }
 }

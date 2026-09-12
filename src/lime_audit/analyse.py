@@ -16,7 +16,15 @@ from lime_audit.config import (
     STABILITY_THRESHOLD_KENDALL,
     TOP_K_FOR_JACCARD,
 )
-from lime_audit.metrics import bootstrap_ci, compute_pairwise_stability, count_tokenizer_mismatch
+from transformers import AutoTokenizer
+
+from lime_audit.metrics import (
+    bootstrap_ci,
+    compute_pairwise_stability,
+    confidence_bucket_analysis,
+    count_tokenizer_mismatch,
+    expected_calibration_error,
+)
 
 
 def load_raw_attributions(path, num_features=LIME_NUM_FEATURES):
@@ -53,9 +61,9 @@ def load_deletion_results(path):
         reader = csv.DictReader(f)
         for row in reader:
             status = row.get("status", "tested")
-            if status == "skipped_empty":
+            if status in ("skipped_empty", "skipped_single_token"):
                 by_input[int(row["input_id"])] = {
-                    "status": "skipped_empty",
+                    "status": status,
                     "category": row["category"],
                     "text": row["text"],
                 }
@@ -99,6 +107,7 @@ def analyse(output_dir, model_name):
     print(f"  {len(deletions)} deletion tests loaded")
 
     print("[3/4] Computing stability and tokenizer mismatch...")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
     stability_rows = []
 
     for input_id in sorted(raw.keys()):
@@ -115,7 +124,7 @@ def analyse(output_dir, model_name):
 
         mean_j = round(pairwise["mean_jaccard"], 4)
         jaccard_ci = bootstrap_ci(pairwise["all_jaccards"])
-        tok_mismatch = count_tokenizer_mismatch(text, model_name)
+        tok_mismatch = count_tokenizer_mismatch(text, tokenizer)
 
         stability_rows.append({
             "input_id": input_id,
@@ -200,6 +209,27 @@ def analyse(output_dir, model_name):
             if d.get("flipped_top5"):
                 cat_faith[cat]["flipped_top5"] += 1
 
+    # Confidence-stratified faithfulness
+    conf_items = []
+    for input_id, d in tested.items():
+        conf = d["original_positive_score"] if d["original_label"] == "positive" else 1.0 - d["original_positive_score"]
+        conf_items.append({
+            "input_id": input_id,
+            "confidence": conf,
+            "direction_correct": d["direction_correct"],
+            "label_flipped": d["label_flipped"],
+            "abs_delta": abs(d["confidence_delta"]),
+        })
+    confidence_buckets = confidence_bucket_analysis(conf_items)
+
+    # Calibration (model's own label as ground truth proxy)
+    cal_probs = []
+    cal_labels = []
+    for d in tested.values():
+        cal_probs.append(d["original_positive_score"])
+        cal_labels.append(1 if d["original_label"] == "positive" else 0)
+    calibration = expected_calibration_error(cal_probs, cal_labels)
+
     summary = {
         "experiment_metadata": env_info,
         "stability_summary": {
@@ -260,6 +290,8 @@ def analyse(output_dir, model_name):
                 for cat, v in cat_faith.items()
             },
         },
+        "calibration": calibration,
+        "confidence_stratified_faithfulness": confidence_buckets,
     }
 
     with open(summary_path, "w", encoding="utf-8") as f:
@@ -285,6 +317,18 @@ def analyse(output_dir, model_name):
     t5 = fs["top5_deletion"]
     print(f"  Mean |delta| top-3: {t3['mean_abs_delta']}, flip rate: {t3['flip_rate']}")
     print(f"  Mean |delta| top-5: {t5['mean_abs_delta']}, flip rate: {t5['flip_rate']}")
+
+    print(f"\n--- CALIBRATION ---")
+    print(f"  ECE:   {calibration['ece']}")
+    print(f"  Brier: {calibration['brier']}")
+
+    print(f"\n--- CONFIDENCE-STRATIFIED FAITHFULNESS ---")
+    for bucket_label, bdata in confidence_buckets.items():
+        if bdata["count"] == 0:
+            print(f"  {bucket_label}: (empty)")
+        else:
+            print(f"  {bucket_label}: n={bdata['count']}, dir_correct={bdata['direction_correct_rate']}, "
+                  f"flip_rate={bdata['label_flip_rate']}, mean|delta|={bdata['mean_abs_delta']}")
 
     print(f"\nSaved: {summary_path}")
     return summary_path

@@ -41,11 +41,18 @@ def load_model(model_name: str):
     return model
 
 
+_POSITIVE_LABELS = {"POSITIVE", "positive"}
+
+
 def get_positive_score(pipeline_output: list) -> float:
     for item in pipeline_output[0]:
-        if "pos" in item["label"].lower():
+        if item["label"] in _POSITIVE_LABELS:
             return item["score"]
-    return 1.0 - max(item["score"] for item in pipeline_output[0])
+    known = [item["label"] for item in pipeline_output[0]]
+    raise ValueError(
+        f"No positive label found in {known}. "
+        f"Expected one of: {_POSITIVE_LABELS}"
+    )
 
 
 def make_predict_fn(model):
@@ -59,10 +66,50 @@ def make_predict_fn(model):
     return predict_proba
 
 
-def run_lime_single(text, predict_fn, seed, num_samples=LIME_NUM_SAMPLES, num_features=LIME_NUM_FEATURES):
+import re as _re
+
+# Tokenizer mismatch note: LIME splits on whitespace; HuggingFace WordPiece splits further
+# (e.g., "I'm" → ["i", "'", "m"]). This is a fundamental method-level mismatch that cannot
+# be fixed by a parameter — LIME perturbation operates on whitespace tokens, not subword tokens.
+# The function below partially reduces mismatch by expanding common contractions before LIME sees
+# the text, so LIME's whitespace tokens better align with WordPiece word-level groups.
+# Limitation: only helps for the listed contraction patterns; compound nouns and rare forms
+# are unchanged. The WordPiece mismatch count may drop from mean 1.55 → ~0.8 on this test set.
+_CONTRACTION_EXPANSIONS = [
+    (_re.compile(r"\b(I|you|he|she|we|they|it|who|that)'m\b", _re.IGNORECASE), r"\1 'm"),
+    (_re.compile(r"\b(is|are|was|were|have|has|had|do|does|did|would|could|should|will|can|might|must|shall|need|dare)'t\b", _re.IGNORECASE), r"\1 't"),
+    (_re.compile(r"\b(I|you|he|she|we|they|it|who|that)'ve\b", _re.IGNORECASE), r"\1 've"),
+    (_re.compile(r"\b(I|you|he|she|we|they|it|who|that)'ll\b", _re.IGNORECASE), r"\1 'll"),
+    (_re.compile(r"\b(I|you|he|she|we|they|it|who|that)'d\b", _re.IGNORECASE), r"\1 'd"),
+    (_re.compile(r"\b(I|you|he|she|we|they|it|who|that|let)'re\b", _re.IGNORECASE), r"\1 're"),
+]
+
+
+def expand_contractions(text: str) -> str:
+    """Insert space before apostrophe suffixes to reduce LIME/WordPiece mismatch.
+
+    Partial mitigation only — does not eliminate the mismatch, just reduces it
+    for the most common English contraction patterns.
+    """
+    for pattern, replacement in _CONTRACTION_EXPANSIONS:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+def run_lime_single(
+    text,
+    predict_fn,
+    seed,
+    num_samples=LIME_NUM_SAMPLES,
+    num_features=LIME_NUM_FEATURES,
+    expand_contractions_before_lime=False,
+):
+    # Optionally expand contractions to partially reduce tokenizer mismatch.
+    # Default off to preserve backward compatibility with existing results.
+    lime_text = expand_contractions(text) if expand_contractions_before_lime else text
     np.random.seed(seed)
     explainer = LimeTextExplainer(class_names=LIME_CLASS_NAMES, random_state=seed)
-    explanation = explainer.explain_instance(text, predict_fn, num_features=num_features, num_samples=num_samples)
+    explanation = explainer.explain_instance(lime_text, predict_fn, num_features=num_features, num_samples=num_samples)
     token_weights = explanation.as_list()
     sorted_by_abs = sorted(token_weights, key=lambda x: abs(x[1]), reverse=True)
     return {"tokens": sorted_by_abs, "lime_score": explanation.score, "intercept": explanation.intercept.get(1, 0.0)}
@@ -70,12 +117,23 @@ def run_lime_single(text, predict_fn, seed, num_samples=LIME_NUM_SAMPLES, num_fe
 
 def run_deletion_test(text, top_token, predict_fn):
     words = text.split()
-    masked_words = [w for w in words if w != top_token]
-    if not masked_words or masked_words == words:
+
+    first_idx = None
+    for i, w in enumerate(words):
+        if w == top_token:
+            first_idx = i
+            break
+    if first_idx is None:
         for i, w in enumerate(words):
             if top_token.lower() in w.lower():
-                masked_words = words[:i] + words[i + 1:]
+                first_idx = i
                 break
+
+    if first_idx is None:
+        return {"modified_text": text, "modified_label": "error", "modified_positive_score": float("nan")}
+
+    masked_words = words[:first_idx] + words[first_idx + 1:]
+
     if not masked_words:
         return {"modified_text": "", "modified_label": "error", "modified_positive_score": float("nan")}
     masked_text = " ".join(masked_words)
@@ -243,6 +301,15 @@ def run_audit(model_name: str, test_set_path: str = None, output_dir: str = None
             deletion = run_deletion_test(text, top_token, predict_fn)
 
             if deletion["modified_label"] == "error":
+                row = {"input_id": input_id, "category": category, "text": text,
+                       "status": "skipped_single_token",
+                       "removed_token": top_token, "token_lime_weight": round(top_weight, 6),
+                       "original_label": canon["base_label"],
+                       "original_positive_score": round(canon["base_pos"], 6)}
+                for field in DELETION_FIELDNAMES:
+                    row.setdefault(field, "")
+                del_writer.writerow(row)
+                del_f.flush()
                 continue
 
             delta = deletion["modified_positive_score"] - canon["base_pos"]

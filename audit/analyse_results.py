@@ -18,7 +18,6 @@ import numpy as np
 from audit.config import (
     DELETION_CSV_PATH,
     FAITHFULNESS_THRESHOLD_DIRECTION,
-    LIME_NUM_FEATURES,
     RAW_CSV_PATH,
     RESULTS_DIR,
     STABILITY_CSV_PATH,
@@ -27,72 +26,14 @@ from audit.config import (
     SUMMARY_PATH,
     TOP_K_FOR_JACCARD,
 )
-from audit.metrics import bootstrap_ci, compute_pairwise_stability, count_tokenizer_mismatch
-
-
-def load_raw_attributions(path: str) -> dict:
-    by_input = defaultdict(dict)
-    with open(path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if not row.get("input_id") or not row.get("seed"):
-                continue
-            input_id = int(row["input_id"])
-            seed = int(row["seed"])
-            tokens = []
-            for i in range(1, LIME_NUM_FEATURES + 1):
-                t = row.get(f"token_{i}", "")
-                w = float(row.get(f"weight_{i}", 0))
-                if t:
-                    tokens.append((t, w))
-            by_input[input_id][seed] = {
-                "tokens": tokens,
-                "base_label": row["base_label"],
-                "base_confidence": float(row["base_confidence"]),
-                "base_positive_score": float(row["base_positive_score"]),
-                "lime_score": float(row["lime_score"]),
-                "duration_ms": int(row["duration_ms"]),
-                "category": row["category"],
-                "text": row["text"],
-            }
-    return dict(by_input)
-
-
-def load_deletion_results(path: str) -> dict:
-    by_input = {}
-    with open(path, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            status = row.get("status", "tested")
-            if status == "skipped_empty":
-                by_input[int(row["input_id"])] = {
-                    "status": "skipped_empty",
-                    "category": row["category"],
-                    "text": row["text"],
-                }
-                continue
-            entry = {
-                "status": "tested",
-                "removed_token": row["removed_token"],
-                "token_lime_weight": float(row["token_lime_weight"]),
-                "original_label": row["original_label"],
-                "original_positive_score": float(row["original_positive_score"]),
-                "modified_label": row["modified_label"],
-                "modified_positive_score": float(row["modified_positive_score"]),
-                "confidence_delta": float(row["confidence_delta"]),
-                "label_flipped": row["label_flipped"] == "True",
-                "direction_correct": row["direction_correct"] == "True",
-                "category": row["category"],
-                "text": row["text"],
-            }
-            if row.get("delta_top3") and row["delta_top3"] != "":
-                entry["delta_top3"] = float(row["delta_top3"])
-                entry["flipped_top3"] = row["flipped_top3"] == "True"
-            if row.get("delta_top5") and row["delta_top5"] != "":
-                entry["delta_top5"] = float(row["delta_top5"])
-                entry["flipped_top5"] = row["flipped_top5"] == "True"
-            by_input[int(row["input_id"])] = entry
-    return by_input
+from lime_audit.analyse import load_raw_attributions, load_deletion_results
+from lime_audit.metrics import (
+    bootstrap_ci,
+    compute_pairwise_stability,
+    confidence_bucket_analysis,
+    count_tokenizer_mismatch,
+    expected_calibration_error,
+)
 
 
 def main():
@@ -109,6 +50,8 @@ def main():
     stability_rows = []
 
     from audit.config import MODEL_NAME
+    from transformers import AutoTokenizer
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 
     for input_id in sorted(raw.keys()):
         seeds_data = raw[input_id]
@@ -125,7 +68,7 @@ def main():
         mean_j = round(pairwise["mean_jaccard"], 4)
         jaccard_ci = bootstrap_ci(pairwise["all_jaccards"])
 
-        tok_mismatch = count_tokenizer_mismatch(text, MODEL_NAME)
+        tok_mismatch = count_tokenizer_mismatch(text, tokenizer)
 
         stability_rows.append({
             "input_id": input_id,
@@ -176,8 +119,8 @@ def main():
         if not isinstance(r["mean_kendall_tau"], str):
             cat_stability[cat]["taus"].append(r["mean_kendall_tau"])
 
-    tested_deletions = {k: v for k, v in deletions.items() if v.get("status") != "skipped_empty"}
-    skipped_deletions = {k: v for k, v in deletions.items() if v.get("status") == "skipped_empty"}
+    tested_deletions = {k: v for k, v in deletions.items() if v.get("status") not in ("skipped_empty", "skipped_single_token")}
+    skipped_deletions = {k: v for k, v in deletions.items() if v.get("status") in ("skipped_empty", "skipped_single_token")}
 
     del_direction_correct = [d for d in tested_deletions.values() if d["direction_correct"]]
     del_flipped = [d for d in tested_deletions.values() if d["label_flipped"]]
@@ -208,6 +151,33 @@ def main():
             cat_faith[cat]["deltas_top5"].append(abs(d["delta_top5"]))
             if d.get("flipped_top5"):
                 cat_faith[cat]["flipped_top5"] += 1
+
+    # Confidence-stratified faithfulness analysis
+    bucket_inputs = []
+    for input_id, d in tested_deletions.items():
+        conf = d["original_positive_score"]
+        if d["original_label"] == "negative":
+            conf = 1.0 - conf
+        bucket_inputs.append({
+            "input_id": input_id,
+            "confidence": conf,
+            "direction_correct": d["direction_correct"],
+            "label_flipped": d["label_flipped"],
+            "abs_delta": abs(d["confidence_delta"]),
+        })
+    confidence_buckets = confidence_bucket_analysis(bucket_inputs)
+
+    # Calibration: ECE/Brier using deletion test inputs
+    # For calibration we need ground-truth labels. Use model's own label as proxy
+    # (since we have no human labels), flagged as limitation.
+    calib_probs = []
+    calib_labels = []
+    for d in tested_deletions.values():
+        pos_score = d["original_positive_score"]
+        model_label = 1 if d["original_label"] == "positive" else 0
+        calib_probs.append(pos_score)
+        calib_labels.append(model_label)
+    calibration = expected_calibration_error(calib_probs, calib_labels)
 
     env_path = os.path.join(RESULTS_DIR, "environment.json")
     env_info = {}
@@ -284,6 +254,8 @@ def main():
                 for cat, v in cat_faith.items()
             },
         },
+        "calibration": calibration,
+        "confidence_stratified_faithfulness": confidence_buckets,
     }
 
     with open(SUMMARY_PATH, "w", encoding="utf-8") as f:
@@ -334,6 +306,26 @@ def main():
               f"Flip1={v['label_flip_rate']}  |D1|={v['mean_abs_delta']}  "
               f"|D3|={v.get('mean_abs_delta_top3', 'N/A')}  "
               f"|D5|={v.get('mean_abs_delta_top5', 'N/A')}")
+
+    cal = summary["calibration"]
+    print("\n--- CALIBRATION (model-label proxy, no human ground truth) ---")
+    print(f"  ECE:                    {cal['ece']}")
+    print(f"  Brier score:            {cal['brier']}")
+    print(f"  Bins with data:         {sum(1 for b in cal['bin_data'] if b['count'] > 0)}/{cal['n_bins']}")
+    for b in cal["bin_data"]:
+        if b["count"] > 0:
+            print(f"    [{b['bin_lo']:.1f}, {b['bin_hi']:.1f}): n={b['count']}, "
+                  f"pred={b['mean_predicted']}, actual={b['mean_actual']}, gap={b['gap']}")
+
+    csf = summary["confidence_stratified_faithfulness"]
+    print("\n--- CONFIDENCE-STRATIFIED FAITHFULNESS ---")
+    for bucket, v in csf.items():
+        if v["count"] == 0:
+            print(f"  {bucket:12s}  (empty)")
+            continue
+        print(f"  {bucket:12s}  n={v['count']:2d}  DirCorr={v['direction_correct_rate']}  "
+              f"FlipRate={v['label_flip_rate']}  Mean|D|={v['mean_abs_delta']:.6f}  "
+              f"IDs={v['input_ids']}")
 
     print(f"\n[6/6] Saving summary...")
     print("\nDone.")
