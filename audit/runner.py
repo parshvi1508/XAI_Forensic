@@ -35,6 +35,7 @@ from audit.config import (
     RESULTS_DIR,
     TEST_SET_PATH,
 )
+from lime_audit.metrics import faithfulness_direction_correct
 
 
 def load_test_set(path: str) -> list[dict]:
@@ -406,8 +407,6 @@ def main():
 
     print(f"\nRaw attributions saved to {RAW_CSV_PATH}")
     print(f"\n[7/7] Running deletion faithfulness tests (top-1, top-3, top-5)...")
-
-    from lime_audit.metrics import faithfulness_direction_correct
 
     del_mode = "a" if args.resume and os.path.exists(DELETION_CSV_PATH) else "w"
     del_write_header = del_mode == "w"

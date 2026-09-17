@@ -18,7 +18,7 @@ def verify_reproducibility():
     python = sys.executable
     backup_dir = os.path.join(RESULTS_DIR, "_verify_backup")
 
-    print("=== Run 1 ===")
+    print("Run 1")
     subprocess.run([python, "-m", "audit.runner"], check=True)
     subprocess.run([python, "-m", "audit.analyse_results"], check=True)
 
@@ -33,11 +33,11 @@ def verify_reproducibility():
         if os.path.exists(src):
             shutil.copy2(src, os.path.join(backup_dir, f))
 
-    print("\n=== Run 2 ===")
+    print("\nRun 2")
     subprocess.run([python, "-m", "audit.runner"], check=True)
     subprocess.run([python, "-m", "audit.analyse_results"], check=True)
 
-    print("\n=== Comparing ===")
+    print("\nComparing")
     all_match = True
     for f in files_to_check:
         run1 = os.path.join(backup_dir, f)

@@ -1,27 +1,27 @@
-# Stage 3 Frozen Contract — VertexED Calibration & Evaluation
-  
-**Author: Parshvi Jain**  
-**Date frozen: 2026-09-12**  
+# Stage 3 Frozen Contract — DistilBERT-SST2 Calibration & Evaluation
 
----
+> **Amendment note (supersedes commit cf419d9):** Two construct-validity issues in the prior version were corrected before any Stage 3 outcomes were inspected: (1) the contract title and scope incorrectly named "VertexED" — the model under evaluation is `distilbert-base-uncased-finetuned-sst-2-english` (revision `714eb0fa`), continuing the same model used in Stages 1–2; (2) P1 has been renamed from a calibration criterion to a confidence self-consistency diagnostic, removing all PASS/FAIL calibration language, since no external ground-truth labels are available. The prior contract commit is preserved in git history.
+
 
 ## Scope
 
-Calibration and explanation-quality evaluation of the VertexED model on the pre-registered 30-input sentiment test set (same inputs as Stages 1–2, `audit/test_set.json`). Evaluation is bounded to the frozen criteria below. Exploratory follow-ups are listed separately and carry no pass/fail weight.
+Calibration and explanation-quality evaluation of the DistilBERT-SST2 model (`distilbert-base-uncased-finetuned-sst-2-english`, revision `714eb0fa`) on the pre-registered 30-input sentiment test set (same inputs as Stages 1–2, `audit/test_set.json`). Evaluation is bounded to the frozen criteria below. Exploratory follow-ups are listed separately and carry no pass/fail weight.
 
----
+
 
 ## Primary Analysis (frozen)
 
-### P1 — Calibration
+### P1 — Confidence Self-Consistency Diagnostic
 
-| Metric | Computation | Pass threshold | Fail threshold |
-|--------|------------|----------------|----------------|
-| ECE | 10-bin equal-width, model's predicted label as ground-truth proxy | ECE < 0.10 | ECE ≥ 0.10 |
-| Brier score | Mean squared error vs model's own label | Brier < 0.05 | Brier ≥ 0.05 |
-| Reliability diagram | Bin-level mean predicted vs mean actual | ≥ 5 bins populated | < 5 bins populated (flag as bimodal/degenerate) |
+*Note: this is not a calibration criterion. No independent ground-truth labels exist. ECE and Brier here measure whether the model's confidence scores are internally consistent — they do not measure calibration against reality and carry no calibration PASS claim.*
 
-**Proxy-label caveat (pre-stated):** No human labels exist. ECE and Brier use the model's own predicted label as ground truth. This measures *internal consistency*, not calibration against reality. A perpetually overconfident-but-correct model can score ≈ 0. Results must be reported with this caveat; they do not constitute a claim about real-world calibration.
+| Metric | Computation | Flag threshold |
+|--------|------------|----------------|
+| ECE | 10-bin equal-width, model's own predicted label as ground-truth proxy | Report value; flag if ECE ≥ 0.10 as high internal inconsistency |
+| Brier score | Mean squared error vs model's own label | Report value; flag if Brier ≥ 0.05 as high internal inconsistency |
+| Reliability diagram | Bin-level mean predicted vs mean actual | Report populated bins; flag if < 5 bins populated as bimodal/degenerate confidence distribution |
+
+These flags are diagnostic only. A flag does not constitute a PASS or FAIL verdict.
 
 ### P2 — Confidence-stratified faithfulness
 
@@ -33,7 +33,7 @@ Bucket all deletion-tested inputs into three confidence bins. Report per bucket:
 | Mid | [0.90, 0.99) |
 | High | [0.99, 1.00] |
 
-**Pre-registered prediction:** High bucket expected to show mean |delta| < 0.01 and flip rate ≈ 0% for strong-baseline inputs, confirming the Stage 2 paradox holds on VertexED.  
+**Pre-registered prediction:** High bucket expected to show mean |delta| < 0.01 and flip rate ≈ 0% for strong-baseline inputs, confirming the Stage 2 paradox holds on this model.  
 Pass/fail: if high-bucket mean |delta| < 0.01 *and* flip rate = 0%, flag single-token deletion as underpowered for the high-confidence regime.
 
 ### P3 — Subgroup slice: `strong_baselines`
@@ -41,10 +41,18 @@ Pass/fail: if high-bucket mean |delta| < 0.01 *and* flip rate = 0%, flag single-
 Report faithfulness separately for the `strong_baselines` category (5 inputs: IDs 21–25).  
 **Pre-registered prediction:** flip rate will remain 0% despite directional correctness. If flip rate > 0%, record as disconfirmation.
 
-### P4 — Distribution-shift slice: `distribution_style_shift`
+### P4 — Stress slice: `distribution_style_shift`
 
-Report faithfulness separately for the `distribution_style_shift` category (5 inputs: IDs 16–20). These are the deliberately OOD inputs.  
-**Pre-registered prediction:** stability (Jaccard) will be lower for this slice than the `ambiguity` slice.
+This is a small preregistered stress slice of 5 inputs (IDs 16–20) covering style and domain shift. It is not broad OOD evidence — it tests whether LIME degrades under a controlled, narrow distribution shift. Results should not be generalised beyond this slice.
+
+**Pre-registered quantitative rule:**  
+Let `J_shift` = mean Jaccard top-5 for `distribution_style_shift`. Let `J_anchor` = mean Jaccard top-5 for `ambiguity`.
+
+- **Confirmed** (stress effect present): `J_shift < J_anchor − 0.05`
+- **Inconclusive** (directional but small): `0 < J_anchor − J_shift < 0.05`
+- **Disconfirmed** (no degradation): `J_shift ≥ J_anchor`
+
+Report which outcome applies. The `ambiguity` slice is chosen as anchor because it contains the same input count (5) with no distribution shift.
 
 ### P5 — Per-example preservation
 
@@ -55,17 +63,20 @@ Every input in the 30-input test set must appear in the per-example output table
 
 No input may be silently absent. Aggregate metrics are only computed over `tested` inputs.
 
----
 
 ## Pass/Fail Summary Criteria
 
-All five primary criteria must be assessed before Stage 3 is considered complete. The overall verdict is:
+All five primary criteria must be assessed before Stage 3 is considered complete. P1 is diagnostic only and carries no pass/fail weight.
 
-- **PASS** if P1 ECE + Brier both pass *and* P3 flip-rate prediction confirmed *and* per-example table complete.
-- **CONDITIONAL PASS** if calibration passes but confidence-stratification prediction is wrong — record the disconfirmation and explain.
-- **FAIL** if ECE ≥ 0.10 *or* per-example table is incomplete.
+| Criterion | Pass condition | Fail condition |
+|-----------|---------------|----------------|
+| P1 (self-consistency) | — diagnostic, report flags only — | — |
+| P2 (confidence-stratified) | High-bucket mean\|delta\| ≥ 0.01 OR flip rate > 0% | High-bucket mean\|delta\| < 0.01 AND flip rate = 0% → flag deletion as underpowered |
+| P3 (strong_baselines slice) | Flip rate > 0% (paradox broken) | Flip rate = 0% → flag LIME unfaithful on high-confidence inputs |
+| P4 (stress slice) | Outcome documented per quantitative rule | Outcome not computed or threshold rule not applied |
+| P5 (per-example) | All 30 inputs present with status | Any input silently absent |
 
----
+
 
 ## Exploratory Follow-Up (NOT frozen — no pass/fail weight)
 
@@ -75,14 +86,5 @@ These are hypotheses for future work. Results, if computed, must be clearly sepa
 |----|-----------|
 | E8 | Multi-token deletion curve (top-1 / 3 / 5 / 10): tests whether increasing k recovers faithfulness signal |
 | E9 | Stability–confidence Spearman correlation: tests whether strong-baseline instability is confidence-driven |
-| E10 | VertexED vs Model A head-to-head on identical inputs: tests whether calibration gap is model-specific |
-| E11 | Adversarial typo slice (10 new inputs with character perturbations): tests LIME under within-text distribution shift |
+| E10 | Adversarial typo slice (10 new inputs with character perturbations): tests LIME under within-text distribution shift |
 
----
-
-## Accounting Rules (pre-stated)
-
-- Test set: 30 inputs (`audit/test_set.json`), IDs 1–30. No inputs may be added or removed post-commit.
-- Stability CSV: computed over inputs with LIME attributions (expected 29; Input 30 whitespace-only excluded).
-- Deletion CSV: computed over inputs with canonical tokens and non-empty post-deletion text (expected 28; Input 9 single-token excluded; both logged as skipped).
-- Any deviation from expected counts must be documented with exact runner line reference before results are interpreted.

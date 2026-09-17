@@ -37,12 +37,12 @@ from lime_audit.metrics import (
 
 
 def main():
-    print("[1/5] Loading raw attributions...")
+    print("[1/6] Loading raw attributions...")
     raw = load_raw_attributions(RAW_CSV_PATH)
     total_rows = sum(len(seeds) for seeds in raw.values())
     print(f"  Loaded {len(raw)} inputs, {total_rows} total rows")
 
-    print("[2/5] Loading deletion results...")
+    print("[2/6] Loading deletion results...")
     deletions = load_deletion_results(DELETION_CSV_PATH)
     print(f"  Loaded {len(deletions)} deletion tests")
 
