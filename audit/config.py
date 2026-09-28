@@ -1,7 +1,7 @@
 import os
 
 MODEL_NAME = "distilbert-base-uncased-finetuned-sst-2-english"
-MODEL_REVISION = "714eb0fa"  # frozen; matches audit/stage3_contract.md. Replace with full 40-char SHA before Stage 3 run.
+MODEL_REVISION = "714eb0fa89d2f80546fda750413ed43d93601a13"  # frozen; full 40-char immutable HF commit SHA; matches audit/stage3_contract.md.
 
 LIME_NUM_SAMPLES = 300
 LIME_NUM_FEATURES = 10

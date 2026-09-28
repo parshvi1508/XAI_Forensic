@@ -5,7 +5,7 @@
 > **Second amendment (pre-run, no Stage 3 outcomes inspected):**
 > (a) P4 boundary and non-finite handling made explicit (see Primary Analysis P4). Classifier extracted to `audit/p4_decision.py` with boundary tests in `audit/test_p4_decision.py`.
 > (b) P3 fail-condition language softened so a zero flip rate is reported as a limitation of the single-token deletion diagnostic, not as a general falsification of LIME. Measured quantities (flip rate, direction-correct rate, mean \|delta\|) are preserved.
-> (c) Tokenizer is bound to the same frozen revision as the model via `audit/config.py:MODEL_REVISION` (currently short SHA `714eb0fa`; to be replaced with the full 40-char immutable commit hash before the Stage 3 run) and is recorded alongside the model revision in the run receipt (`audit/runner.py:get_environment_info`).
+> (c) Tokenizer is bound to the same frozen revision as the model via `audit/config.py:MODEL_REVISION` (full 40-char immutable commit hash `714eb0fa89d2f80546fda750413ed43d93601a13`) and is recorded alongside the model revision in the run receipt (`audit/runner.py:get_environment_info`).
 > (d) Scope of the slice analysis (P2, P3, P4) is labelled as a post-Stage-2, pre-Stage-3 analysis plan, not fresh independent confirmatory evidence, since Stage 1-2 inputs and their aggregate results were seen before slice definitions were frozen. All Stage 1-2 artifacts and the 30 / 29 / 28 accounting are preserved unchanged.
 
 
