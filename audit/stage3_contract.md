@@ -1,17 +1,17 @@
 # Stage 3 Frozen Contract — DistilBERT-SST2 Calibration & Evaluation
 
-> **Amendment note (supersedes commit cf419d9):** Two construct-validity issues in the prior version were corrected before any Stage 3 outcomes were inspected: (1) the contract title and scope incorrectly named "VertexED" — the model under evaluation is `distilbert-base-uncased-finetuned-sst-2-english` (revision `714eb0fa`), continuing the same model used in Stages 1-2; (2) P1 has been renamed from a calibration criterion to a confidence self-consistency diagnostic, removing all PASS/FAIL calibration language, since no external ground-truth labels are available. The prior contract commit is preserved in git history.
+> **Amendment note (supersedes commit cf419d9):** Two construct-validity issues in the prior version were corrected before any Stage 3 outcomes were inspected: (1) the contract title and scope incorrectly named "VertexED" — the model under evaluation is `distilbert-base-uncased-finetuned-sst-2-english` (revision `714eb0fa89d2f80546fda750413ed43d93601a13`), continuing the same model used in Stages 1-2; (2) P1 has been renamed from a calibration criterion to a confidence self-consistency diagnostic, removing all PASS/FAIL calibration language, since no external ground-truth labels are available. The prior contract commit is preserved in git history.
 >
 > **Second amendment (pre-run, no Stage 3 outcomes inspected):**
 > (a) P4 boundary and non-finite handling made explicit (see Primary Analysis P4). Classifier extracted to `audit/p4_decision.py` with boundary tests in `audit/test_p4_decision.py`.
 > (b) P3 fail-condition language softened so a zero flip rate is reported as a limitation of the single-token deletion diagnostic, not as a general falsification of LIME. Measured quantities (flip rate, direction-correct rate, mean \|delta\|) are preserved.
-> (c) Tokenizer is bound to the same frozen revision as the model via `audit/config.py:MODEL_REVISION` (full 40-char immutable commit hash `714eb0fa89d2f80546fda750413ed43d93601a13`) and is recorded alongside the model revision in the run receipt (`audit/runner.py:get_environment_info`).
+> (c) Tokenizer is bound to the same frozen revision as the model via `audit/config.py:MODEL_REVISION` (full 40-char immutable HF commit SHA `714eb0fa89d2f80546fda750413ed43d93601a13`) and is recorded alongside the model revision in the run receipt (`audit/runner.py:get_environment_info`).
 > (d) Scope of the slice analysis (P2, P3, P4) is labelled as a post-Stage-2, pre-Stage-3 analysis plan, not fresh independent confirmatory evidence, since Stage 1-2 inputs and their aggregate results were seen before slice definitions were frozen. All Stage 1-2 artifacts and the 30 / 29 / 28 accounting are preserved unchanged.
 
 
 ## Scope
 
-Calibration and explanation-quality evaluation of the DistilBERT-SST2 model (`distilbert-base-uncased-finetuned-sst-2-english`, revision `714eb0fa`) on the pre-registered 30-input sentiment test set (same inputs as Stages 1–2, `audit/test_set.json`). Evaluation is bounded to the frozen criteria below. Exploratory follow-ups are listed separately and carry no pass/fail weight.
+Calibration and explanation-quality evaluation of the DistilBERT-SST2 model (`distilbert-base-uncased-finetuned-sst-2-english`, revision `714eb0fa89d2f80546fda750413ed43d93601a13`) on the pre-registered 30-input sentiment test set (same inputs as Stages 1–2, `audit/test_set.json`). Evaluation is bounded to the frozen criteria below. Exploratory follow-ups are listed separately and carry no pass/fail weight.
 
 
 
