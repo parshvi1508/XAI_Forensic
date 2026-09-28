@@ -30,6 +30,7 @@ from audit.config import (
     LIME_NUM_FEATURES,
     LIME_NUM_SAMPLES,
     MODEL_NAME,
+    MODEL_REVISION,
     RANDOM_SEEDS,
     RAW_CSV_PATH,
     RESULTS_DIR,
@@ -44,9 +45,9 @@ def load_test_set(path: str) -> list[dict]:
     return data["inputs"]
 
 
-def load_model(model_name: str):
-    print(f"Loading model: {model_name}")
-    model = hf_pipeline("text-classification", model=model_name, top_k=None)
+def load_model(model_name: str, revision: str = MODEL_REVISION):
+    print(f"Loading model: {model_name}@{revision}")
+    model = hf_pipeline("text-classification", model=model_name, revision=revision, top_k=None)
     print("Model loaded.")
     return model
 
@@ -194,6 +195,8 @@ def get_environment_info():
 
     return {
         "model": MODEL_NAME,
+        "model_revision": MODEL_REVISION,
+        "tokenizer_revision": MODEL_REVISION,
         "lime_version": getattr(lime, "__version__", "0.2.0.1"),
         "torch_version": torch.__version__,
         "transformers_version": transformers.__version__,

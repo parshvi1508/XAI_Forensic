@@ -1,6 +1,12 @@
 # Stage 3 Frozen Contract — DistilBERT-SST2 Calibration & Evaluation
 
-> **Amendment note (supersedes commit cf419d9):** Two construct-validity issues in the prior version were corrected before any Stage 3 outcomes were inspected: (1) the contract title and scope incorrectly named "VertexED" — the model under evaluation is `distilbert-base-uncased-finetuned-sst-2-english` (revision `714eb0fa`), continuing the same model used in Stages 1–2; (2) P1 has been renamed from a calibration criterion to a confidence self-consistency diagnostic, removing all PASS/FAIL calibration language, since no external ground-truth labels are available. The prior contract commit is preserved in git history.
+> **Amendment note (supersedes commit cf419d9):** Two construct-validity issues in the prior version were corrected before any Stage 3 outcomes were inspected: (1) the contract title and scope incorrectly named "VertexED" — the model under evaluation is `distilbert-base-uncased-finetuned-sst-2-english` (revision `714eb0fa`), continuing the same model used in Stages 1-2; (2) P1 has been renamed from a calibration criterion to a confidence self-consistency diagnostic, removing all PASS/FAIL calibration language, since no external ground-truth labels are available. The prior contract commit is preserved in git history.
+>
+> **Second amendment (pre-run, no Stage 3 outcomes inspected):**
+> (a) P4 boundary and non-finite handling made explicit (see Primary Analysis P4). Classifier extracted to `audit/p4_decision.py` with boundary tests in `audit/test_p4_decision.py`.
+> (b) P3 fail-condition language softened so a zero flip rate is reported as a limitation of the single-token deletion diagnostic, not as a general falsification of LIME. Measured quantities (flip rate, direction-correct rate, mean \|delta\|) are preserved.
+> (c) Tokenizer is bound to the same frozen revision as the model via `audit/config.py:MODEL_REVISION` (currently short SHA `714eb0fa`; to be replaced with the full 40-char immutable commit hash before the Stage 3 run) and is recorded alongside the model revision in the run receipt (`audit/runner.py:get_environment_info`).
+> (d) Scope of the slice analysis (P2, P3, P4) is labelled as a post-Stage-2, pre-Stage-3 analysis plan, not fresh independent confirmatory evidence, since Stage 1-2 inputs and their aggregate results were seen before slice definitions were frozen. All Stage 1-2 artifacts and the 30 / 29 / 28 accounting are preserved unchanged.
 
 
 ## Scope
@@ -45,14 +51,15 @@ Report faithfulness separately for the `strong_baselines` category (5 inputs: ID
 
 This is a small preregistered stress slice of 5 inputs (IDs 16–20) covering style and domain shift. It is not broad OOD evidence — it tests whether LIME degrades under a controlled, narrow distribution shift. Results should not be generalised beyond this slice.
 
-**Pre-registered quantitative rule:**  
-Let `J_shift` = mean Jaccard top-5 for `distribution_style_shift`. Let `J_anchor` = mean Jaccard top-5 for `ambiguity`.
+**Pre-registered quantitative rule (amended for boundary and non-finite cases):**  
+Let `J_shift` = mean Jaccard top-5 for `distribution_style_shift`. Let `J_anchor` = mean Jaccard top-5 for `ambiguity`. Let `delta = J_anchor - J_shift` computed on unrounded values.
 
-- **Confirmed** (stress effect present): `J_shift < J_anchor − 0.05`
-- **Inconclusive** (directional but small): `0 < J_anchor − J_shift < 0.05`
-- **Disconfirmed** (no degradation): `J_shift ≥ J_anchor`
+- **Confirmed** (stress effect present): `delta > 0.05` (strict)
+- **Inconclusive** (directional but small): `0 < delta <= 0.05` (equality included per amendment)
+- **Disconfirmed** (no degradation): `delta <= 0`
+- **Undetermined**: `J_anchor` or `J_shift` missing, non-finite (NaN, inf), or computed over an empty slice
 
-Report which outcome applies. The `ambiguity` slice is chosen as anchor because it contains the same input count (5) with no distribution shift.
+Decision is computed from unrounded values; rounding or formatting is applied only after classification. The classification is implemented in `audit/p4_decision.py` with boundary and non-finite unit tests in `audit/test_p4_decision.py`. Report which outcome applies. The `ambiguity` slice is chosen as anchor because it contains the same input count (5) with no distribution shift.
 
 ### P5 — Per-example preservation
 
@@ -72,7 +79,7 @@ All five primary criteria must be assessed before Stage 3 is considered complete
 |-----------|---------------|----------------|
 | P1 (self-consistency) | — diagnostic, report flags only — | — |
 | P2 (confidence-stratified) | High-bucket mean\|delta\| ≥ 0.01 OR flip rate > 0% | High-bucket mean\|delta\| < 0.01 AND flip rate = 0% → flag deletion as underpowered |
-| P3 (strong_baselines slice) | Flip rate > 0% (paradox broken) | Flip rate = 0% → flag LIME unfaithful on high-confidence inputs |
+| P3 (strong_baselines slice) | Flip rate > 0% (paradox broken) | Flip rate = 0%: record as a limitation of the single-token deletion diagnostic on the `strong_baselines` slice; preserve the measured flip rate, directional-correctness rate, and mean \|delta\|; do NOT report as a general falsification of LIME |
 | P4 (stress slice) | Outcome documented per quantitative rule | Outcome not computed or threshold rule not applied |
 | P5 (per-example) | All 30 inputs present with status | Any input silently absent |
 

@@ -49,9 +49,9 @@ def main():
     print("[3/6] Computing pairwise stability and tokenizer mismatch for each input...")
     stability_rows = []
 
-    from audit.config import MODEL_NAME
+    from audit.config import MODEL_NAME, MODEL_REVISION
     from transformers import AutoTokenizer
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, revision=MODEL_REVISION)
 
     for input_id in sorted(raw.keys()):
         seeds_data = raw[input_id]
@@ -177,7 +177,7 @@ def main():
         model_label = 1 if d["original_label"] == "positive" else 0
         calib_probs.append(pos_score)
         calib_labels.append(model_label)
-    calibration = expected_calibration_error(calib_probs, calib_labels)
+    self_consistency = expected_calibration_error(calib_probs, calib_labels)
 
     env_path = os.path.join(RESULTS_DIR, "environment.json")
     env_info = {}
@@ -254,7 +254,7 @@ def main():
                 for cat, v in cat_faith.items()
             },
         },
-        "calibration": calibration,
+        "self_consistency_diagnostic": self_consistency,
         "confidence_stratified_faithfulness": confidence_buckets,
     }
 
@@ -307,8 +307,8 @@ def main():
               f"|D3|={v.get('mean_abs_delta_top3', 'N/A')}  "
               f"|D5|={v.get('mean_abs_delta_top5', 'N/A')}")
 
-    cal = summary["calibration"]
-    print("\n--- CALIBRATION (model-label proxy, no human ground truth) ---")
+    cal = summary["self_consistency_diagnostic"]
+    print("\n--- SELF-CONSISTENCY DIAGNOSTIC (model-label proxy; NOT calibration) ---")
     print(f"  ECE:                    {cal['ece']}")
     print(f"  Brier score:            {cal['brier']}")
     print(f"  Bins with data:         {sum(1 for b in cal['bin_data'] if b['count'] > 0)}/{cal['n_bins']}")
