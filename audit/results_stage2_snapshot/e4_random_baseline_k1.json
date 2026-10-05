@@ -1,0 +1,742 @@
+{
+  "k": 1,
+  "random_trials": 10,
+  "random_seed": 99,
+  "n_inputs": 28,
+  "lime_wins": 20,
+  "lime_wins_rate": 0.7143,
+  "mean_lime_abs_delta": 0.384582,
+  "mean_random_abs_delta": 0.109997,
+  "median_lime_abs_delta": 0.034655,
+  "median_random_abs_delta": 0.004329,
+  "inputs": [
+    {
+      "input_id": 1,
+      "category": "negation_minimal_pairs",
+      "text": "I am not entirely unhappy with this result.",
+      "base_label": "positive",
+      "n_words": 8,
+      "lime_top_k": [
+        "not"
+      ],
+      "lime_abs_delta": 0.987197,
+      "mean_random_abs_delta": 0.295124,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 3.345,
+      "random_deltas": [
+        0.002248,
+        0.002248,
+        0.009853,
+        0.987197,
+        0.009853,
+        0.009853,
+        0.987197,
+        0.008798,
+        0.931744,
+        0.002248
+      ]
+    },
+    {
+      "input_id": 2,
+      "category": "negation_minimal_pairs",
+      "text": "This is not good.",
+      "base_label": "negative",
+      "n_words": 4,
+      "lime_top_k": [
+        "not"
+      ],
+      "lime_abs_delta": 0.999622,
+      "mean_random_abs_delta": 0.102256,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 9.7757,
+      "random_deltas": [
+        1.3e-05,
+        0.005709,
+        2.1e-05,
+        0.005709,
+        2.1e-05,
+        0.999622,
+        0.005709,
+        2.1e-05,
+        2.1e-05,
+        0.005709
+      ]
+    },
+    {
+      "input_id": 3,
+      "category": "negation_minimal_pairs",
+      "text": "This is good.",
+      "base_label": "positive",
+      "n_words": 3,
+      "lime_top_k": [
+        "good"
+      ],
+      "lime_abs_delta": 0.005262,
+      "mean_random_abs_delta": 0.002633,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 1.9982,
+      "random_deltas": [
+        0.005262,
+        5e-06,
+        0.005262,
+        5e-06,
+        5e-06,
+        0.005262,
+        0.005262,
+        0.005262,
+        5e-06,
+        5e-06
+      ]
+    },
+    {
+      "input_id": 4,
+      "category": "negation_minimal_pairs",
+      "text": "I would not recommend this to anyone.",
+      "base_label": "negative",
+      "n_words": 7,
+      "lime_top_k": [
+        "not"
+      ],
+      "lime_abs_delta": 0.956902,
+      "mean_random_abs_delta": 0.303636,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 3.1515,
+      "random_deltas": [
+        0.956902,
+        0.035115,
+        0.027823,
+        0.956902,
+        0.009066,
+        0.027823,
+        0.035115,
+        0.021649,
+        0.956902,
+        0.009066
+      ]
+    },
+    {
+      "input_id": 5,
+      "category": "negation_minimal_pairs",
+      "text": "Nothing about this experience was disappointing.",
+      "base_label": "positive",
+      "n_words": 6,
+      "lime_top_k": [
+        "experience"
+      ],
+      "lime_abs_delta": 0.002447,
+      "mean_random_abs_delta": 0.518458,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.0047,
+      "random_deltas": [
+        0.99153,
+        0.002447,
+        0.050677,
+        0.818066,
+        0.050677,
+        0.002447,
+        0.99153,
+        0.641078,
+        0.818066,
+        0.818066
+      ]
+    },
+    {
+      "input_id": 6,
+      "category": "lexical_shortcuts",
+      "text": "The movie was terrible but I loved every minute of it.",
+      "base_label": "positive",
+      "n_words": 11,
+      "lime_top_k": [
+        "loved"
+      ],
+      "lime_abs_delta": 0.98715,
+      "mean_random_abs_delta": 0.000135,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 7305.1058,
+      "random_deltas": [
+        6e-06,
+        0.000648,
+        8.9e-05,
+        6e-06,
+        0.00013,
+        0.000266,
+        6e-06,
+        5.7e-05,
+        8.6e-05,
+        5.7e-05
+      ]
+    },
+    {
+      "input_id": 7,
+      "category": "lexical_shortcuts",
+      "text": "Excellent packaging, but the product itself is useless.",
+      "base_label": "negative",
+      "n_words": 8,
+      "lime_top_k": [
+        "useless"
+      ],
+      "lime_abs_delta": 0.99837,
+      "mean_random_abs_delta": 0.100492,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 9.9348,
+      "random_deltas": [
+        0.000594,
+        0.99837,
+        0.000981,
+        0.000205,
+        0.000981,
+        0.000205,
+        0.000594,
+        0.001386,
+        0.000626,
+        0.000981
+      ]
+    },
+    {
+      "input_id": 8,
+      "category": "lexical_shortcuts",
+      "text": "I love how badly this was designed.",
+      "base_label": "negative",
+      "n_words": 7,
+      "lime_top_k": [
+        "badly"
+      ],
+      "lime_abs_delta": 0.995426,
+      "mean_random_abs_delta": 0.269602,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 3.6922,
+      "random_deltas": [
+        0.003313,
+        0.004203,
+        0.020151,
+        0.995426,
+        0.004203,
+        0.022764,
+        0.637855,
+        0.008477,
+        0.004203,
+        0.995426
+      ]
+    },
+    {
+      "input_id": 10,
+      "category": "lexical_shortcuts",
+      "text": "Absolutely phenomenal waste of my time.",
+      "base_label": "negative",
+      "n_words": 6,
+      "lime_top_k": [
+        "waste"
+      ],
+      "lime_abs_delta": 0.999653,
+      "mean_random_abs_delta": 0.199943,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 4.9997,
+      "random_deltas": [
+        0.999653,
+        1.4e-05,
+        1.9e-05,
+        2.2e-05,
+        0.999653,
+        6e-06,
+        1.9e-05,
+        1.6e-05,
+        2.2e-05,
+        6e-06
+      ]
+    },
+    {
+      "input_id": 11,
+      "category": "ambiguity",
+      "text": "It was okay, I guess.",
+      "base_label": "positive",
+      "n_words": 5,
+      "lime_top_k": [
+        "okay"
+      ],
+      "lime_abs_delta": 0.953973,
+      "mean_random_abs_delta": 0.095597,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 9.9791,
+      "random_deltas": [
+        8.4e-05,
+        4.8e-05,
+        8.4e-05,
+        0.001274,
+        0.000137,
+        0.000137,
+        0.000137,
+        4.8e-05,
+        0.953973,
+        4.8e-05
+      ]
+    },
+    {
+      "input_id": 12,
+      "category": "ambiguity",
+      "text": "That is one way to do it.",
+      "base_label": "positive",
+      "n_words": 7,
+      "lime_top_k": [
+        "way"
+      ],
+      "lime_abs_delta": 0.074733,
+      "mean_random_abs_delta": 0.129838,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.5756,
+      "random_deltas": [
+        0.068727,
+        0.074733,
+        0.068727,
+        0.068727,
+        0.665896,
+        0.075063,
+        0.066525,
+        0.074733,
+        0.066525,
+        0.068727
+      ]
+    },
+    {
+      "input_id": 13,
+      "category": "ambiguity",
+      "text": "I have seen worse.",
+      "base_label": "negative",
+      "n_words": 4,
+      "lime_top_k": [
+        "worse"
+      ],
+      "lime_abs_delta": 0.99804,
+      "mean_random_abs_delta": 0.000345,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 2896.9421,
+      "random_deltas": [
+        0.000168,
+        0.000606,
+        0.000168,
+        0.000174,
+        0.000606,
+        0.000168,
+        0.000606,
+        0.000606,
+        0.000168,
+        0.000174
+      ]
+    },
+    {
+      "input_id": 14,
+      "category": "ambiguity",
+      "text": "The service was exactly what I expected.",
+      "base_label": "positive",
+      "n_words": 7,
+      "lime_top_k": [
+        "what"
+      ],
+      "lime_abs_delta": 0.010339,
+      "mean_random_abs_delta": 0.003183,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 3.2481,
+      "random_deltas": [
+        0.004723,
+        0.004723,
+        0.001248,
+        0.001907,
+        0.001907,
+        0.004723,
+        0.004723,
+        0.004723,
+        0.001907,
+        0.001248
+      ]
+    },
+    {
+      "input_id": 15,
+      "category": "ambiguity",
+      "text": "It is what it is.",
+      "base_label": "positive",
+      "n_words": 5,
+      "lime_top_k": [
+        "it"
+      ],
+      "lime_abs_delta": 0.001059,
+      "mean_random_abs_delta": 0.000627,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 1.6878,
+      "random_deltas": [
+        3.8e-05,
+        4.7e-05,
+        0.000401,
+        4.7e-05,
+        0.001411,
+        0.001059,
+        0.001059,
+        0.000401,
+        0.001411,
+        0.000401
+      ]
+    },
+    {
+      "input_id": 16,
+      "category": "distribution_style_shift",
+      "text": "ngl this slaps fr fr no cap",
+      "base_label": "negative",
+      "n_words": 7,
+      "lime_top_k": [
+        "slaps"
+      ],
+      "lime_abs_delta": 4.8e-05,
+      "mean_random_abs_delta": 0.000939,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.0511,
+      "random_deltas": [
+        0.001512,
+        0.001512,
+        4.8e-05,
+        7.4e-05,
+        0.001547,
+        0.001512,
+        0.001512,
+        4.8e-05,
+        7.8e-05,
+        0.001547
+      ]
+    },
+    {
+      "input_id": 17,
+      "category": "distribution_style_shift",
+      "text": "The patient presents with acute exacerbation of chronic symptoms.",
+      "base_label": "negative",
+      "n_words": 9,
+      "lime_top_k": [
+        "chronic"
+      ],
+      "lime_abs_delta": 0.003388,
+      "mean_random_abs_delta": 0.004001,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.8467,
+      "random_deltas": [
+        0.000231,
+        0.006483,
+        0.005059,
+        0.003388,
+        0.00307,
+        0.003388,
+        0.006483,
+        0.005059,
+        0.00307,
+        0.003784
+      ]
+    },
+    {
+      "input_id": 18,
+      "category": "distribution_style_shift",
+      "text": "Revenue increased 12% YoY driven by strong Q4 performance.",
+      "base_label": "positive",
+      "n_words": 9,
+      "lime_top_k": [
+        "strong"
+      ],
+      "lime_abs_delta": 0.019401,
+      "mean_random_abs_delta": 0.004657,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 4.1664,
+      "random_deltas": [
+        0.00084,
+        1.7e-05,
+        0.000604,
+        0.003998,
+        0.000313,
+        0.00084,
+        0.0194,
+        0.00084,
+        0.0194,
+        0.000313
+      ]
+    },
+    {
+      "input_id": 19,
+      "category": "distribution_style_shift",
+      "text": "lmaooo this is so bad its good",
+      "base_label": "negative",
+      "n_words": 7,
+      "lime_top_k": [
+        "bad"
+      ],
+      "lime_abs_delta": 0.999387,
+      "mean_random_abs_delta": 0.566001,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 1.7657,
+      "random_deltas": [
+        0.000194,
+        0.000221,
+        0.91509,
+        0.91509,
+        0.999386,
+        0.000245,
+        0.999386,
+        0.91509,
+        0.91509,
+        0.000221
+      ]
+    },
+    {
+      "input_id": 20,
+      "category": "distribution_style_shift",
+      "text": "Per the attached memo, please advise on next steps.",
+      "base_label": "negative",
+      "n_words": 9,
+      "lime_top_k": [
+        "please"
+      ],
+      "lime_abs_delta": 0.126052,
+      "mean_random_abs_delta": 0.403688,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.3123,
+      "random_deltas": [
+        0.689273,
+        0.054624,
+        0.39507,
+        0.689273,
+        0.39507,
+        0.187799,
+        0.39507,
+        0.126052,
+        0.689273,
+        0.415378
+      ]
+    },
+    {
+      "input_id": 21,
+      "category": "strong_baselines",
+      "text": "This is the best product I have ever purchased.",
+      "base_label": "positive",
+      "n_words": 9,
+      "lime_top_k": [
+        "best"
+      ],
+      "lime_abs_delta": 0.000343,
+      "mean_random_abs_delta": 3.8e-05,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 9.0343,
+      "random_deltas": [
+        4e-06,
+        6e-06,
+        0.000342,
+        6e-06,
+        2e-06,
+        6e-06,
+        8e-06,
+        2e-06,
+        2e-06,
+        2e-06
+      ]
+    },
+    {
+      "input_id": 22,
+      "category": "strong_baselines",
+      "text": "Terrible experience, complete waste of money.",
+      "base_label": "negative",
+      "n_words": 6,
+      "lime_top_k": [
+        "Terrible"
+      ],
+      "lime_abs_delta": 2e-06,
+      "mean_random_abs_delta": 6.5e-05,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.0307,
+      "random_deltas": [
+        3.8e-05,
+        2e-06,
+        3e-06,
+        5e-06,
+        1e-05,
+        1e-05,
+        3.8e-05,
+        3e-06,
+        0.000503,
+        3.8e-05
+      ]
+    },
+    {
+      "input_id": 23,
+      "category": "strong_baselines",
+      "text": "I absolutely love everything about this.",
+      "base_label": "positive",
+      "n_words": 6,
+      "lime_top_k": [
+        "love"
+      ],
+      "lime_abs_delta": 7.2e-05,
+      "mean_random_abs_delta": 9e-06,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 8.3632,
+      "random_deltas": [
+        7.1e-05,
+        1e-06,
+        1e-06,
+        4e-06,
+        4e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
+    },
+    {
+      "input_id": 24,
+      "category": "strong_baselines",
+      "text": "This is awful and I regret buying it.",
+      "base_label": "negative",
+      "n_words": 8,
+      "lime_top_k": [
+        "awful"
+      ],
+      "lime_abs_delta": 0.000508,
+      "mean_random_abs_delta": 6.2e-05,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 8.1924,
+      "random_deltas": [
+        5.9e-05,
+        0.000109,
+        5.2e-05,
+        2.7e-05,
+        5.9e-05,
+        2.7e-05,
+        5.2e-05,
+        5.2e-05,
+        0.000125,
+        5.9e-05
+      ]
+    },
+    {
+      "input_id": 25,
+      "category": "strong_baselines",
+      "text": "The quality exceeded all my expectations and I am thrilled.",
+      "base_label": "positive",
+      "n_words": 10,
+      "lime_top_k": [
+        "thrilled"
+      ],
+      "lime_abs_delta": 8.7e-05,
+      "mean_random_abs_delta": 3.6e-05,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 2.4417,
+      "random_deltas": [
+        4e-05,
+        8e-06,
+        8.7e-05,
+        8.7e-05,
+        2e-06,
+        0.0,
+        3e-06,
+        5.7e-05,
+        5.7e-05,
+        1.4e-05
+      ]
+    },
+    {
+      "input_id": 26,
+      "category": "edge_cases",
+      "text": "good good good good good",
+      "base_label": "positive",
+      "n_words": 5,
+      "lime_top_k": [
+        "good"
+      ],
+      "lime_abs_delta": 1e-06,
+      "mean_random_abs_delta": 1e-06,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.9368,
+      "random_deltas": [
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06,
+        1e-06
+      ]
+    },
+    {
+      "input_id": 27,
+      "category": "edge_cases",
+      "text": "The the the the movie was great.",
+      "base_label": "positive",
+      "n_words": 7,
+      "lime_top_k": [
+        "great"
+      ],
+      "lime_abs_delta": 0.585853,
+      "mean_random_abs_delta": 0.058658,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 9.9876,
+      "random_deltas": [
+        1.1e-05,
+        1.1e-05,
+        1.1e-05,
+        1.1e-05,
+        1.1e-05,
+        0.000644,
+        0.585853,
+        9e-06,
+        1.1e-05,
+        1.1e-05
+      ]
+    },
+    {
+      "input_id": 28,
+      "category": "edge_cases",
+      "text": "I think that maybe it could possibly be somewhat decent.",
+      "base_label": "negative",
+      "n_words": 10,
+      "lime_top_k": [
+        "could"
+      ],
+      "lime_abs_delta": 0.049909,
+      "mean_random_abs_delta": 0.002159,
+      "lime_wins": true,
+      "lime_vs_random_ratio": 23.1203,
+      "random_deltas": [
+        0.000659,
+        0.009907,
+        0.000659,
+        0.001124,
+        0.000154,
+        0.003267,
+        0.001728,
+        0.000659,
+        0.003267,
+        0.000163
+      ]
+    },
+    {
+      "input_id": 29,
+      "category": "edge_cases",
+      "text": "Amazing! Horrible! Amazing! Horrible!",
+      "base_label": "positive",
+      "n_words": 4,
+      "lime_top_k": [
+        "Amazing"
+      ],
+      "lime_abs_delta": 0.013079,
+      "mean_random_abs_delta": 0.017743,
+      "lime_wins": false,
+      "lime_vs_random_ratio": 0.7371,
+      "random_deltas": [
+        0.013079,
+        0.031063,
+        0.00043,
+        0.013079,
+        0.031063,
+        0.013079,
+        0.031063,
+        0.013079,
+        0.031063,
+        0.00043
+      ]
+    }
+  ]
+}

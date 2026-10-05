@@ -1,0 +1,29 @@
+input_id,category,text,base_label,n_words,lime_top_k,lime_abs_delta,mean_random_abs_delta,lime_wins,lime_vs_random_ratio
+1,negation_minimal_pairs,I am not entirely unhappy with this result.,positive,8,['not'],0.987197,0.295124,True,3.345
+2,negation_minimal_pairs,This is not good.,negative,4,['not'],0.999622,0.102256,True,9.7757
+3,negation_minimal_pairs,This is good.,positive,3,['good'],0.005262,0.002633,True,1.9982
+4,negation_minimal_pairs,I would not recommend this to anyone.,negative,7,['not'],0.956902,0.303636,True,3.1515
+5,negation_minimal_pairs,Nothing about this experience was disappointing.,positive,6,['experience'],0.002447,0.518458,False,0.0047
+6,lexical_shortcuts,The movie was terrible but I loved every minute of it.,positive,11,['loved'],0.98715,0.000135,True,7305.1058
+7,lexical_shortcuts,"Excellent packaging, but the product itself is useless.",negative,8,['useless'],0.99837,0.100492,True,9.9348
+8,lexical_shortcuts,I love how badly this was designed.,negative,7,['badly'],0.995426,0.269602,True,3.6922
+10,lexical_shortcuts,Absolutely phenomenal waste of my time.,negative,6,['waste'],0.999653,0.199943,True,4.9997
+11,ambiguity,"It was okay, I guess.",positive,5,['okay'],0.953973,0.095597,True,9.9791
+12,ambiguity,That is one way to do it.,positive,7,['way'],0.074733,0.129838,False,0.5756
+13,ambiguity,I have seen worse.,negative,4,['worse'],0.99804,0.000345,True,2896.9421
+14,ambiguity,The service was exactly what I expected.,positive,7,['what'],0.010339,0.003183,True,3.2481
+15,ambiguity,It is what it is.,positive,5,['it'],0.001059,0.000627,True,1.6878
+16,distribution_style_shift,ngl this slaps fr fr no cap,negative,7,['slaps'],4.8e-05,0.000939,False,0.0511
+17,distribution_style_shift,The patient presents with acute exacerbation of chronic symptoms.,negative,9,['chronic'],0.003388,0.004001,False,0.8467
+18,distribution_style_shift,Revenue increased 12% YoY driven by strong Q4 performance.,positive,9,['strong'],0.019401,0.004657,True,4.1664
+19,distribution_style_shift,lmaooo this is so bad its good,negative,7,['bad'],0.999387,0.566001,True,1.7657
+20,distribution_style_shift,"Per the attached memo, please advise on next steps.",negative,9,['please'],0.126052,0.403688,False,0.3123
+21,strong_baselines,This is the best product I have ever purchased.,positive,9,['best'],0.000343,3.8e-05,True,9.0343
+22,strong_baselines,"Terrible experience, complete waste of money.",negative,6,['Terrible'],2e-06,6.5e-05,False,0.0307
+23,strong_baselines,I absolutely love everything about this.,positive,6,['love'],7.2e-05,9e-06,True,8.3632
+24,strong_baselines,This is awful and I regret buying it.,negative,8,['awful'],0.000508,6.2e-05,True,8.1924
+25,strong_baselines,The quality exceeded all my expectations and I am thrilled.,positive,10,['thrilled'],8.7e-05,3.6e-05,True,2.4417
+26,edge_cases,good good good good good,positive,5,['good'],1e-06,1e-06,False,0.9368
+27,edge_cases,The the the the movie was great.,positive,7,['great'],0.585853,0.058658,True,9.9876
+28,edge_cases,I think that maybe it could possibly be somewhat decent.,negative,10,['could'],0.049909,0.002159,True,23.1203
+29,edge_cases,Amazing! Horrible! Amazing! Horrible!,positive,4,['Amazing'],0.013079,0.017743,False,0.7371

@@ -15,6 +15,7 @@ import csv
 import json
 import os
 import platform
+import subprocess
 import sys
 import time
 from datetime import datetime, timezone
@@ -193,10 +194,16 @@ def get_environment_info():
     import torch
     import transformers
 
+    try:
+        commit_sha = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    except Exception:
+        commit_sha = None
+
     return {
         "model": MODEL_NAME,
         "model_revision": MODEL_REVISION,
         "tokenizer_revision": MODEL_REVISION,
+        "commit_sha": commit_sha,
         "lime_version": getattr(lime, "__version__", "0.2.0.1"),
         "torch_version": torch.__version__,
         "transformers_version": transformers.__version__,

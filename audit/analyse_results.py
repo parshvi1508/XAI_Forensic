@@ -26,6 +26,7 @@ from audit.config import (
     SUMMARY_PATH,
     TOP_K_FOR_JACCARD,
 )
+from audit.p4_decision import classify_p4
 from lime_audit.analyse import load_raw_attributions, load_deletion_results
 from lime_audit.metrics import (
     bootstrap_ci,
@@ -118,6 +119,19 @@ def main():
         cat_stability[cat]["jaccards"].append(r["mean_jaccard_top5"])
         if not isinstance(r["mean_kendall_tau"], str):
             cat_stability[cat]["taus"].append(r["mean_kendall_tau"])
+
+    anchor_js = cat_stability["ambiguity"]["jaccards"]
+    shift_js = cat_stability["distribution_style_shift"]["jaccards"]
+    j_anchor = float(np.mean(anchor_js)) if anchor_js else None
+    j_shift = float(np.mean(shift_js)) if shift_js else None
+    p4_stress_slice = {
+        "anchor_category": "ambiguity",
+        "shift_category": "distribution_style_shift",
+        "j_anchor": j_anchor,
+        "j_shift": j_shift,
+        "delta": (j_anchor - j_shift) if (j_anchor is not None and j_shift is not None) else None,
+        "outcome": classify_p4(j_anchor, j_shift),
+    }
 
     tested_deletions = {k: v for k, v in deletions.items() if v.get("status") not in ("skipped_empty", "skipped_single_token")}
     skipped_deletions = {k: v for k, v in deletions.items() if v.get("status") in ("skipped_empty", "skipped_single_token")}
@@ -256,6 +270,7 @@ def main():
         },
         "self_consistency_diagnostic": self_consistency,
         "confidence_stratified_faithfulness": confidence_buckets,
+        "p4_stress_slice": p4_stress_slice,
     }
 
     with open(SUMMARY_PATH, "w", encoding="utf-8") as f:
