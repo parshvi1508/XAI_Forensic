@@ -1,31 +1,31 @@
 input_id,category,text,status,removed_token,token_lime_weight,original_label,original_positive_score,modified_label,modified_positive_score,confidence_delta,label_flipped,direction_correct,removed_top3,delta_top3,flipped_top3,removed_top5,delta_top5,flipped_top5
-1,negation_minimal_pairs,I am not entirely unhappy with this result.,tested,not,0.387286,positive,0.987497,negative,0.0003,-0.987197,True,True,,,,,,
-2,negation_minimal_pairs,This is not good.,tested,not,-0.95234,negative,0.000212,positive,0.999834,0.999622,True,True,,,,,,
-3,negation_minimal_pairs,This is good.,tested,good,0.010069,positive,0.999834,positive,0.994572,-0.005262,False,True,,,,,,
-4,negation_minimal_pairs,I would not recommend this to anyone.,tested,not,-0.828758,negative,0.042252,positive,0.999154,0.956902,True,True,,,,,,
-5,negation_minimal_pairs,Nothing about this experience was disappointing.,tested,experience,-0.182502,positive,0.99206,positive,0.989613,-0.002447,False,False,,,,,,
-6,lexical_shortcuts,The movie was terrible but I loved every minute of it.,tested,loved,0.715722,positive,0.999629,negative,0.012479,-0.98715,True,True,,,,,,
-7,lexical_shortcuts,"Excellent packaging, but the product itself is useless.",tested,useless,-0.849516,negative,0.000983,positive,0.999353,0.99837,True,True,,,,,,
-8,lexical_shortcuts,I love how badly this was designed.,tested,badly,-0.65506,negative,0.004422,positive,0.999848,0.995426,True,True,,,,,,
+1,negation_minimal_pairs,I am not entirely unhappy with this result.,tested,not,0.387286,positive,0.987497,negative,0.0003,-0.987197,True,True,not|unhappy|with,0.011531,False,not|unhappy|with|I|am,0.010973,False
+2,negation_minimal_pairs,This is not good.,tested,not,-0.95234,negative,0.000212,positive,0.999834,0.999622,True,True,not|good|This,0.999627,True,not|good|This|is,0.999603,True
+3,negation_minimal_pairs,This is good.,tested,good,0.010069,positive,0.999834,positive,0.994572,-0.005262,False,True,good|This|is,-1.9e-05,False,good|This|is,-1.9e-05,False
+4,negation_minimal_pairs,I would not recommend this to anyone.,tested,not,-0.828758,negative,0.042252,positive,0.999154,0.956902,True,True,not|recommend|to,-0.017194,False,not|recommend|to|would|anyone,0.861278,True
+5,negation_minimal_pairs,Nothing about this experience was disappointing.,tested,experience,-0.182502,positive,0.99206,positive,0.989613,-0.002447,False,False,experience|was|about,-0.368925,False,experience|was|about|this|disappointing,0.004589,False
+6,lexical_shortcuts,The movie was terrible but I loved every minute of it.,tested,loved,0.715722,positive,0.999629,negative,0.012479,-0.98715,True,True,loved|terrible|every,-0.986935,True,loved|terrible|every|movie|it,-0.911132,True
+7,lexical_shortcuts,"Excellent packaging, but the product itself is useless.",tested,useless,-0.849516,negative,0.000983,positive,0.999353,0.99837,True,True,useless|Excellent|but,-0.000798,False,useless|Excellent|but|packaging|itself,-0.000801,False
+8,lexical_shortcuts,I love how badly this was designed.,tested,badly,-0.65506,negative,0.004422,positive,0.999848,0.995426,True,True,badly|I|love,0.929095,True,badly|I|love|this|how,0.992773,True
 9,lexical_shortcuts,Fine.,skipped_single_token,Fine,0.002753,positive,0.999827,,,,,,,,,,,
-10,lexical_shortcuts,Absolutely phenomenal waste of my time.,tested,waste,-0.961034,negative,0.000228,positive,0.999881,0.999653,True,True,,,,,,
-11,ambiguity,"It was okay, I guess.",tested,okay,0.343482,positive,0.999728,negative,0.045755,-0.953973,True,True,,,,,,
-12,ambiguity,That is one way to do it.,tested,way,-0.117033,positive,0.924599,positive,0.999332,0.074733,False,True,,,,,,
-13,ambiguity,I have seen worse.,tested,worse,-0.952881,negative,0.00044,positive,0.99848,0.99804,True,True,,,,,,
-14,ambiguity,The service was exactly what I expected.,tested,what,0.200719,positive,0.996916,positive,0.986577,-0.010339,False,True,,,,,,
-15,ambiguity,It is what it is.,tested,it,0.178306,positive,0.999573,positive,0.998514,-0.001059,False,True,,,,,,
-16,distribution_style_shift,ngl this slaps fr fr no cap,tested,slaps,-0.120861,negative,0.000673,negative,0.000721,4.8e-05,False,True,,,,,,
-17,distribution_style_shift,The patient presents with acute exacerbation of chronic symptoms.,tested,chronic,-0.167174,negative,0.01216,negative,0.015548,0.003388,False,True,,,,,,
-18,distribution_style_shift,Revenue increased 12% YoY driven by strong Q4 performance.,tested,strong,0.098849,positive,0.999106,positive,0.979706,-0.019401,False,True,,,,,,
-19,distribution_style_shift,lmaooo this is so bad its good,tested,bad,-0.566163,negative,0.000437,positive,0.999823,0.999387,True,True,,,,,,
-20,distribution_style_shift,"Per the attached memo, please advise on next steps.",tested,please,0.377587,negative,0.177884,negative,0.051832,-0.126052,False,True,,,,,,
-21,strong_baselines,This is the best product I have ever purchased.,tested,best,0.008087,positive,0.999857,positive,0.999515,-0.000343,False,True,,,,,,
-22,strong_baselines,"Terrible experience, complete waste of money.",tested,Terrible,-0.31752,negative,0.000185,negative,0.000183,-2e-06,False,False,,,,,,
-23,strong_baselines,I absolutely love everything about this.,tested,love,0.00506,positive,0.999884,positive,0.999813,-7.2e-05,False,True,,,,,,
-24,strong_baselines,This is awful and I regret buying it.,tested,awful,-0.404163,negative,0.000348,negative,0.000856,0.000508,False,True,,,,,,
-25,strong_baselines,The quality exceeded all my expectations and I am thrilled.,tested,thrilled,0.018258,positive,0.99988,positive,0.999793,-8.7e-05,False,True,,,,,,
-26,edge_cases,good good good good good,tested,good,0.021029,positive,0.999838,positive,0.999839,1e-06,False,False,,,,,,
-27,edge_cases,The the the the movie was great.,tested,great,0.337764,positive,0.999862,negative,0.414009,-0.585853,True,True,,,,,,
-28,edge_cases,I think that maybe it could possibly be somewhat decent.,tested,could,-0.317427,negative,0.004522,negative,0.054431,0.049909,False,True,,,,,,
-29,edge_cases,Amazing! Horrible! Amazing! Horrible!,tested,Amazing,0.641662,positive,0.999419,positive,0.98634,-0.013079,False,True,,,,,,
-30,edge_cases, ,skipped_empty,,,,,,,,,,,,,,,
+10,lexical_shortcuts,Absolutely phenomenal waste of my time.,tested,waste,-0.961034,negative,0.000228,positive,0.999881,0.999653,True,True,waste|Absolutely|my,0.999646,True,waste|Absolutely|my|phenomenal|time,0.716287,True
+11,ambiguity,"It was okay, I guess.",tested,okay,0.343482,positive,0.999728,negative,0.045755,-0.953973,True,True,okay|It|guess,-0.000137,False,okay|It|guess|was|I,-0.41408,False
+12,ambiguity,That is one way to do it.,tested,way,-0.117033,positive,0.924599,positive,0.999332,0.074733,False,True,way|to|one,-0.118529,False,way|to|one|is|it,0.074633,False
+13,ambiguity,I have seen worse.,tested,worse,-0.952881,negative,0.00044,positive,0.99848,0.99804,True,True,worse|seen|have,-0.000213,False,worse|seen|have|I,-0.000217,False
+14,ambiguity,The service was exactly what I expected.,tested,what,0.200719,positive,0.996916,positive,0.986577,-0.010339,False,True,what|exactly|I,-0.770641,True,what|exactly|I|expected|service,-0.686652,True
+15,ambiguity,It is what it is.,tested,it,0.178306,positive,0.999573,positive,0.998514,-0.001059,False,True,it|is|It,-0.001909,False,it|is|It|what,-0.020146,False
+16,distribution_style_shift,ngl this slaps fr fr no cap,tested,slaps,-0.120861,negative,0.000673,negative,0.000721,4.8e-05,False,True,slaps|no|ngl,0.044094,False,slaps|no|ngl|cap|fr,0.992471,True
+17,distribution_style_shift,The patient presents with acute exacerbation of chronic symptoms.,tested,chronic,-0.167174,negative,0.01216,negative,0.015548,0.003388,False,True,chronic|exacerbation|symptoms,0.011213,False,chronic|exacerbation|symptoms|presents|patient,0.014674,False
+18,distribution_style_shift,Revenue increased 12% YoY driven by strong Q4 performance.,tested,strong,0.098849,positive,0.999106,positive,0.979706,-0.019401,False,True,strong|increased|YoY,-0.02211,False,strong|increased|YoY|by|Revenue,-0.002568,False
+19,distribution_style_shift,lmaooo this is so bad its good,tested,bad,-0.566163,negative,0.000437,positive,0.999823,0.999387,True,True,bad|its|good,0.145158,False,bad|its|good|lmaooo|this,0.977631,True
+20,distribution_style_shift,"Per the attached memo, please advise on next steps.",tested,please,0.377587,negative,0.177884,negative,0.051832,-0.126052,False,True,please|memo|next,-0.088696,False,please|memo|next|attached|advise,0.796423,True
+21,strong_baselines,This is the best product I have ever purchased.,tested,best,0.008087,positive,0.999857,positive,0.999515,-0.000343,False,True,best|the|ever,-0.002322,False,best|the|ever|have|I,-0.594327,True
+22,strong_baselines,"Terrible experience, complete waste of money.",tested,Terrible,-0.31752,negative,0.000185,negative,0.000183,-2e-06,False,False,Terrible|waste|experience,0.932471,True,Terrible|waste|experience|of|money,0.9945,True
+23,strong_baselines,I absolutely love everything about this.,tested,love,0.00506,positive,0.999884,positive,0.999813,-7.2e-05,False,True,love|absolutely|everything,-0.006659,False,love|absolutely|everything|about|I,-0.009424,False
+24,strong_baselines,This is awful and I regret buying it.,tested,awful,-0.404163,negative,0.000348,negative,0.000856,0.000508,False,True,awful|regret|I,0.999036,True,awful|regret|I|it|is,0.998668,True
+25,strong_baselines,The quality exceeded all my expectations and I am thrilled.,tested,thrilled,0.018258,positive,0.99988,positive,0.999793,-8.7e-05,False,True,thrilled|and|exceeded,-0.000112,False,thrilled|and|exceeded|my|expectations,-2.5e-05,False
+26,edge_cases,good good good good good,tested,good,0.021029,positive,0.999838,positive,0.999839,1e-06,False,False,good,,,good,,
+27,edge_cases,The the the the movie was great.,tested,great,0.337764,positive,0.999862,negative,0.414009,-0.585853,True,True,great|the|was,1.2e-05,False,great|the|was|The|movie,4e-06,False
+28,edge_cases,I think that maybe it could possibly be somewhat decent.,tested,could,-0.317427,negative,0.004522,negative,0.054431,0.049909,False,True,could|possibly|maybe,0.994925,True,could|possibly|maybe|be|think,0.995322,True
+29,edge_cases,Amazing! Horrible! Amazing! Horrible!,tested,Amazing,0.641662,positive,0.999419,positive,0.98634,-0.013079,False,True,Amazing|Horrible,0.0,False,Amazing|Horrible,0.0,False
+30,edge_cases,' ',skipped_empty,,,,,,,,,,,,,,,

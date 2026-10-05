@@ -1,11 +1,14 @@
 {
   "model": "distilbert-base-uncased-finetuned-sst-2-english",
+  "model_revision": "714eb0fa89d2f80546fda750413ed43d93601a13",
+  "tokenizer_revision": "714eb0fa89d2f80546fda750413ed43d93601a13",
+  "commit_sha": "PASTE_SHA_A_HERE",
   "lime_version": "0.2.0.1",
-  "torch_version": "2.14.0+cpu",
-  "transformers_version": "5.16.1",
-  "numpy_version": "2.5.3",
-  "scipy_version": "1.18.1",
-  "sklearn_version": "1.9.0",
+  "torch_version": "2.11.0+cpu",
+  "transformers_version": "5.8.0",
+  "numpy_version": "2.4.4",
+  "scipy_version": "1.17.1",
+  "sklearn_version": "1.8.0",
   "python_version": "3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
   "platform": "Windows-11-10.0.26200-SP0",
   "seeds": [
@@ -17,7 +20,15 @@
   ],
   "num_samples": 300,
   "num_features": 10,
-  "run_timestamp": "2026-09-08T08:01:01.210119+00:00",
-  "total_duration_seconds": 1268.7,
-  "resumed": false
+  "run_timestamp": "2026-10-05T19:49:46.284820+00:00",
+  "total_duration_seconds": 1003.5,
+  "resumed": false,
+  "skipped_inputs": [
+    {
+      "input_id": 30,
+      "category": "edge_cases",
+      "text": "' '",
+      "reason": "empty_or_whitespace"
+    }
+  ]
 }
