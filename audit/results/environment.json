@@ -2,7 +2,7 @@
   "model": "distilbert-base-uncased-finetuned-sst-2-english",
   "model_revision": "714eb0fa89d2f80546fda750413ed43d93601a13",
   "tokenizer_revision": "714eb0fa89d2f80546fda750413ed43d93601a13",
-  "commit_sha": "PASTE_SHA_A_HERE",
+  "commit_sha": "a192c39cc621013c2a318d16f0983422e5e124cd",
   "lime_version": "0.2.0.1",
   "torch_version": "2.11.0+cpu",
   "transformers_version": "5.8.0",
